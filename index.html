@@ -399,6 +399,20 @@ body.noscroll{overflow:hidden}
 .gtip ul{margin:4px 0 0;padding-left:18px;display:grid;gap:6px;font-size:13.8px;line-height:1.65}
 .st-box.fun{background:color-mix(in srgb,var(--vie) 12%,var(--card))}
 
+
+/* ---------- 명소 사진 ---------- */
+.ph{margin:0 0 12px;min-width:0}
+.ph-track{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:16px}
+.ph-track::-webkit-scrollbar{display:none}
+.ph-s{position:relative;flex:0 0 100%;aspect-ratio:3/2;max-width:100%;scroll-snap-align:start;border-radius:16px;overflow:hidden;background:var(--soft)}
+.ph-s img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s}
+.ph-s img[data-state="ok"]{opacity:1}
+.ph-skel{background:linear-gradient(90deg,var(--soft),color-mix(in srgb,var(--soft) 60%,var(--card)),var(--soft));background-size:200% 100%}
+@media (prefers-reduced-motion:no-preference){.ph-skel{animation:sk 1.2s linear infinite}}
+@keyframes sk{to{background-position:-200% 0}}
+.ph-n{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font:500 11px var(--f-mono);border-radius:999px;padding:2px 8px}
+.ph-cr{display:block;font-size:11px;color:var(--muted);margin-top:5px;text-decoration:none}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -1663,6 +1677,69 @@ const SEE_LIKE_GUIDE = {t:"가이드처럼 보는 법", items:[
  "합스부르크 상징인 **쌍두 독수리**는 세 도시 모두에서 찾을 수 있어요. 여행 내내 몇 번 발견하는지 세어보세요."
 ]};
 
+/* ================= 명소 대표 사진 (위키백과 문서의 사진을 불러와요) ================= */
+const PHOTO = {
+ oldtown:["Old_Town_Square"], orloj:["Prague_astronomical_clock"], charles:["Charles_Bridge"], castle:["Prague_Castle","St._Vitus_Cathedral"],
+ lobko:["Lobkowicz_Palace"], rampart:["Garden_on_the_Ramparts","Prague_Castle"], wallen:["Wallenstein_Palace"], strahov:["Strahov_Monastery"],
+ hradcany:["Hradčany_Square","Hradčany"], trdlo:["Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["Pilsner_Urquell"],
+ krumlov:["Český_Krumlov_Castle","Český_Krumlov"], gosau:["Gosausee","Gosau"], hallstatt:["Hallstatt"],
+ stephan:["St._Stephen's_Cathedral,_Vienna"], graben:["Graben,_Vienna","Graben_(Vienna)"], peter:["St._Peter's_Church,_Vienna","Peterskirche,_Vienna"], anker:["Ankeruhr"],
+ khm:["Kunsthistorisches_Museum"], demel:["Demel"], karls:["Karlskirche"], musikverein:["Wiener_Musikverein","Musikverein"], albertina:["Albertina"],
+ belvedere:["Belvedere,_Vienna","Belvedere_Palace"], hofburg:["Hofburg"], prunksaal:["Austrian_National_Library"], palmen:["Burggarten"],
+ rathaus:["Vienna_City_Hall","Rathaus,_Vienna"], parliament_at:["Austrian_Parliament_Building"], central:["Café_Central"], schonbrunn:["Schönbrunn_Palace"],
+ gloriette:["Gloriette_(Schönbrunn)","Gloriette"], opera:["Vienna_State_Opera"], karntner:["Kärntner_Straße"], sacher:["Sachertorte","Hotel_Sacher"],
+ budacastle:["Buda_Castle"], bastion:["Fisherman's_Bastion"], matthias:["Matthias_Church"], chimney:["Kürtőskalács"], sunset:["Hungarian_Parliament_Building"],
+ lanchid:["Goulash"], nyc:["New_York_Café","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
+ parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["Lángos"],
+ porks:["Pork_knuckle"], savoy:["Malá_Strana"], hilton:["Buda_Castle_District","Castle_District"],
+ "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["Vienna"], "city-bud":["Budapest"]
+};
+const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|svg$|\.tif|chart|graph/i;
+const PH_MEM = {};
+const whost = u => (u.startsWith("//") ? "https:" + u : u).replace(/\?.*$/,"");
+async function mediaFor(title){
+  const key = "ph2:"+title;
+  const c = store.get(key, null); if (Array.isArray(c)) return c;
+  const r = await fetch("https://en.wikipedia.org/api/rest_v1/page/media-list/"+encodeURIComponent(title));
+  if (!r.ok) throw new Error("no page");
+  const j = await r.json();
+  const out = (j.items||[]).filter(it=>it.type==="image" && it.showInGallery!==false && it.srcset && it.srcset.length && !PH_SKIP.test(it.title||""))
+    .slice(0,3).map(it=>whost(it.srcset[0].src));
+  store.set(key, out); return out;
+}
+async function photosFor(id){
+  if (PH_MEM[id]) return PH_MEM[id];
+  for (const t of (PHOTO[id]||[])) { try { const l = await mediaFor(t); if (l.length) { PH_MEM[id] = {list:l, t}; return PH_MEM[id]; } } catch {} }
+  for (const t of (PHOTO[id]||[])) { try { const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t))).json();
+      const u = j.thumbnail && j.thumbnail.source; if (u) { PH_MEM[id] = {list:[whost(u)], t}; return PH_MEM[id]; } } catch {} }
+  PH_MEM[id] = {list:[], t:null}; return PH_MEM[id];
+}
+// 위키미디어가 허용하는 표준 크기로 바꿔서 시도 (960 → 500 → 330 → 원본)
+function sizes(u){
+  const m = u.match(/\/(\d+)px-[^/]+$/);
+  if (!m) return [u];
+  const orig = u.replace("/thumb/","/").replace(/\/\d+px-[^/]+$/,"");
+  return [960,500,330].map(w=>u.replace(/\/\d+px-/,`/${w}px-`)).concat([orig]);
+}
+function setImg(img, u){
+  const c = sizes(u); let i = 0;
+  img.onerror = ()=>{ i++; if (i < c.length) img.src = c[i]; else img.closest(".ph-s")?.remove(); };
+  img.onload = ()=>{ img.dataset.state = "ok"; };
+  img.src = c[0];
+}
+function photoSlot(id){ return PHOTO[id] ? `<div class="ph" data-ph="${id}"><div class="ph-track"><div class="ph-s ph-skel"></div></div></div>` : ""; }
+function hydratePhotos(root){
+  root.querySelectorAll(".ph[data-ph]:not([data-done])").forEach(async box=>{
+    box.dataset.done = "1";
+    const {list, t} = await photosFor(box.dataset.ph);
+    if (!list.length) { box.remove(); return; }
+    const tr = box.querySelector(".ph-track");
+    tr.innerHTML = list.map((u,k)=>`<div class="ph-s"><img alt="" loading="lazy" decoding="async"><span class="ph-n">${k+1}/${list.length}</span></div>`).join("");
+    tr.querySelectorAll("img").forEach((im,k)=>setImg(im, list[k]));
+    box.insertAdjacentHTML("beforeend", `<a class="ph-cr" href="https://en.wikipedia.org/wiki/${enc(t)}" target="_blank" rel="noopener">사진: Wikimedia Commons${list.length>1?" · 옆으로 넘겨보기 →":""}</a>`);
+  });
+}
+
 const FLAG = {cz:"🇨🇿", at:"🇦🇹", hu:"🇭🇺", prg:"🇨🇿", ck:"🇨🇿", hs:"🇦🇹", vie:"🇦🇹", bud:"🇭🇺"};
 const CITY_OF_STORY = id => GUIDE.cities.find(c=>c.id===id);
 const storyFor = o => o ? STORIES.find(x=>x.o.includes(o)) : null;
@@ -1674,7 +1751,7 @@ function whereInPlan(st){
 function storyBody(st){
   const w = whereInPlan(st);
   const art = ART_BY_STORY[st.id];
-  return `${st.story.map(p=>`<p>${rich(p)}</p>`).join("")}
+  return `${photoSlot(st.id)}${st.story.map(p=>`<p>${rich(p)}</p>`).join("")}
     ${st.look&&st.look.length?`<div class="st-box"><div class="st-k">👀 이것만은 꼭 보기</div><ul>${st.look.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
     ${GUIDE_TIPS[st.id]?`<div class="gtip"><div class="gtip-h"><span>🎙️</span><b>가이드 한마디</b></div><ul>${GUIDE_TIPS[st.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
     ${st.tip?`<div class="st-tip"><b>💡 팁</b> ${rich(st.tip)}</div>`:""}
@@ -1698,7 +1775,7 @@ function renderInfo(){
       </div></details>`).join("");
   const cities = G.cities.map(c=>`<details class="gd" style="--c:var(${c.c})" id="ct-${c.id}">
       <summary><span class="flag">${FLAG[c.id]}</span><span class="gd-t"><b>${esc(c.name)} <em>${esc(c.days)}</em></b><small>${esc(c.hook)}</small></span></summary>
-      <div class="gd-b">${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
+      <div class="gd-b">${photoSlot("city-"+c.id)}${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
         <div class="st-box"><div class="st-k">📌 알아두면 좋은 것</div><ul>${c.know.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>${CITY_FUN[c.id]?`<div class="st-box fun"><div class="st-k">✨ 알면 재밌는 것</div><ul>${CITY_FUN[c.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}</div></details>`).join("");
   const spots = G.cities.map(c=>{
     const list = STORIES.filter(s=>s.city===c.id); if (!list.length) return "";
@@ -1744,7 +1821,7 @@ function renderInfo(){
     if (!isDesktop() && $("#sheet").dataset.pos!=="full") setSheet("full");
     el.scrollTo({top:t.offsetTop-54, behavior:"smooth"}); });
   bindGoto(el); hydrateArt(el); bindArtTiles(el);
-  el.querySelectorAll("details").forEach(d=>d.addEventListener("toggle",()=>{ if(d.open) hydrateArt(d); }));
+  el.querySelectorAll("details").forEach(d=>d.addEventListener("toggle",()=>{ if(d.open){ hydrateArt(d); hydratePhotos(d); } }));
 }
 function bindGoto(root){
   root.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{
@@ -1759,7 +1836,7 @@ function openStory(st){
   $("#storyBody").innerHTML = storyBody(st);
   $("#story").style.setProperty("--c", c?`var(${c.c})`:"var(--ink)");
   $("#story").hidden = false; $("#storyBody").scrollTop = 0;
-  bindGoto($("#storyBody")); hydrateArt($("#storyBody")); bindArtTiles($("#storyBody"));
+  bindGoto($("#storyBody")); hydrateArt($("#storyBody")); hydratePhotos($("#storyBody")); bindArtTiles($("#storyBody"));
 }
 function closeStory(){ $("#story").hidden = true; }
 
