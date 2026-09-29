@@ -1684,24 +1684,24 @@ const SEE_LIKE_GUIDE = {t:"가이드처럼 보는 법", items:[
 const PHOTO = {
  oldtown:["Old_Town_Square"], orloj:["Prague_astronomical_clock"], charles:["Charles_Bridge"], castle:["Prague_Castle","St._Vitus_Cathedral"],
  lobko:["c:Lobkowicz Palace Prague Castle","Lobkowicz_Palace"], rampart:["Garden_on_the_Ramparts","Prague_Castle"], wallen:["Wallenstein_Palace"], strahov:["Strahov_Monastery"],
- hradcany:["Schnitzel","Hradčany_Square"], trdlo:["Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["Pilsner_Urquell"],
+ hradcany:["c:Smažený řízek","c:Wiener Schnitzel plate"], trdlo:["c:Trdelník Praha","c:Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["c:Pilsner Urquell glass beer","c:Pilsner Urquell tankové pivo"],
  krumlov:["Český_Krumlov_Castle","Český_Krumlov"], gosau:["Gosausee","Gosau"], hallstatt:["Hallstatt"],
  stephan:["St._Stephen's_Cathedral,_Vienna"], graben:["Graben,_Vienna","Graben_(Vienna)"], peter:["St._Peter's_Church,_Vienna","Peterskirche,_Vienna"], anker:["Ankeruhr"],
  khm:["Kunsthistorisches_Museum"], demel:["c:Demel Kohlmarkt Wien","Demel"], karls:["Karlskirche"], musikverein:["Wiener_Musikverein","Musikverein"], albertina:["Albertina"],
  belvedere:["Belvedere,_Vienna","Belvedere_Palace"], hofburg:["Hofburg"], prunksaal:["Austrian_National_Library"],
  rathaus:["Vienna_City_Hall","Rathaus,_Vienna"], parliament_at:["Austrian_Parliament_Building"], central:["c:Café Central Wien","Café_Central"], schonbrunn:["Schönbrunn_Palace"],
- gloriette:["Gloriette_(Schönbrunn)","Gloriette"], opera:["Vienna_State_Opera"], karntner:["Kärntner_Straße"], sacher:["c:Hotel Sacher Wien","Sachertorte"],
- budacastle:["Buda_Castle"], bastion:["Fisherman's_Bastion"], matthias:["Matthias_Church"], chimney:["Kürtőskalács"], sunset:["Hungarian_Parliament_Building"],
- lanchid:["Goulash"], nyc:["c:New York Café Budapest","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
- parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["Lángos"],
- porks:["Pork_knuckle"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["Korean_cuisine"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
+ gloriette:["Gloriette_(Schönbrunn)","Gloriette"], opera:["Vienna_State_Opera"], karntner:["Kärntner_Straße"], sacher:["c:Hotel Sacher Wien","c:Sachertorte Café Sacher"],
+ budacastle:["Buda_Castle"], bastion:["Fisherman's_Bastion"], matthias:["Matthias_Church"], chimney:["c:Kürtőskalács","c:Chimney cake Budapest"], sunset:["Hungarian_Parliament_Building"],
+ lanchid:["c:Gulyásleves","c:Hungarian goulash soup"], nyc:["c:New York Café Budapest","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
+ parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["c:Lángos tejföl sajt","c:Lángos"],
+ porks:["c:Vepřové koleno","c:Pečené vepřové koleno","c:Schweinshaxe"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["c:Bibimbap","c:Korean food table"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
  "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["Vienna"], "city-bud":["Budapest"]
 };
-const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|svg$|\.tif|chart|graph/i;
+const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|\.svg|\.png|\.gif|\.tif|chart|graph|drawing|illustration|cuts|scheme|schema|engraving|lithograph|stamp|poster|menu card|label/i;
 const PH_MEM = {};
 const whost = u => (u.startsWith("//") ? "https:" + u : u).replace(/\?.*$/,"");
 async function mediaFor(title){
-  const key = "ph2:"+title;
+  const key = "ph3:"+title;
   const c = store.get(key, null); if (Array.isArray(c)) return c;
   const r = await fetch("https://en.wikipedia.org/api/rest_v1/page/media-list/"+encodeURIComponent(title));
   if (!r.ok) throw new Error("no page");
@@ -1711,7 +1711,7 @@ async function mediaFor(title){
   store.set(key, out); return out;
 }
 async function commonsFor(q){
-  const key = "phc1:"+q;
+  const key = "phc2:"+q;
   const c = store.get(key, null); if (Array.isArray(c)) return c;
   const u = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=960&gsrsearch="+encodeURIComponent(q+" filetype:bitmap");
   const j = await (await fetch(u)).json();
