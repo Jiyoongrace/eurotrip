@@ -55,6 +55,8 @@ a{color:inherit}
 /* ---------- Map ---------- */
 #map{position:absolute;inset:0;background:var(--soft)}
 #map.no-tiles{background-color:var(--soft);background-image:radial-gradient(color-mix(in srgb,var(--muted) 35%,transparent) 1px,transparent 1px);background-size:18px 18px}
+#map .leaflet-tile-pane{filter:saturate(.8) contrast(.96)}
+#map.dark-tiles .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9) saturate(.6)}
 .map-note{position:absolute;left:12px;right:12px;top:118px;z-index:1100;background:var(--card);color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12.5px;box-shadow:var(--shadow)}
 .pin{width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--c);display:grid;place-items:center;border:2px solid var(--card);box-shadow:0 4px 10px rgba(0,0,0,.25);transition:transform .2s}
 .pin b{transform:rotate(45deg);color:#fff;font:600 12.5px/1 var(--f-mono)}
@@ -412,9 +414,9 @@ if (state.day > DAYS.length) state.day = 0;
 const isDark = () => { const t=document.documentElement.dataset.theme; return t ? t==="dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
 let map, tiles, layer, markers = [], tileOK = 0, tileErr = 0;
 function makeTiles(){
-  const style = isDark() ? "dark_all" : "rastertiles/voyager";
-  const t = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png`, {maxZoom:19, subdomains:"abcd",
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'});
+  document.getElementById("map").classList.toggle("dark-tiles", isDark());
+  const t = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'});
   t.on("tileload", () => { tileOK++; $("#mapNote").hidden = true; $("#map").classList.remove("no-tiles"); });
   t.on("tileerror", () => { tileErr++; if (tileErr >= 4 && tileOK === 0) { $("#mapNote").hidden = false; $("#map").classList.add("no-tiles"); } });
   return t;
