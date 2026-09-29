@@ -141,6 +141,9 @@ a{color:inherit}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
 
 /* ---------- Tickets ---------- */
+.drive{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;text-decoration:none}
+.drive svg{width:22px;height:22px;flex:none;color:var(--bud)}
+.drive span{display:grid;gap:1px;min-width:0}.drive small{color:var(--muted);font-size:12px}
 .sec-t{font:700 13px/1 var(--f-display);color:var(--muted);letter-spacing:.06em;margin:18px 0 10px}
 .sec-t:first-child{margin-top:0}
 .ticket{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
@@ -252,6 +255,14 @@ const HOTELS = {
   prg:{n:"Grandium Hotel Prague", q:"Grandium Hotel Prague", ll:[50.0822,14.4308]},
   vie:{n:"Novotel Wien Hauptbahnhof", q:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779]},
   bud:{n:"Hilton Budapest", q:"Hilton Budapest Hess András tér", ll:[47.5025,19.0343]}
+};
+/* 구글 드라이브 링크 — "제한됨"(나와 동행자만) 공유 설정된 폴더/파일 링크를 넣으면 버튼이 나타나요 */
+const DRIVE = {
+  folder: "",            // 바우처 전체 폴더 링크
+  files: {               // 예약 카드별 파일 링크 (선택)
+    "fl-in":"", "fl-out":"", "ht-prg":"", "ht-vie":"", "ht-bud":"",
+    "tr-tour":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
+  }
 };
 const MRT_ART = "https://experiences.myrealtrip.com/products/3527939";
 const MRT_BEL = "https://experiences.myrealtrip.com/products/3527938";
@@ -392,6 +403,7 @@ const IC = {
   route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>',
   link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  drive:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3h7l6 10.5-3.5 6h-12L2.5 13.5z"/><path d="M8.5 3l6 10.5h7M2.5 13.5h12L11 19.5"/></svg>',
   fit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'
 };
 const cityOf = (d, s) => s && s.cc ? s.cc : d.city;
@@ -639,6 +651,7 @@ function ticketHTML(b){
   const acts = [];
   if (b.q) acts.push(`<a class="btn sm" href="${gPlace(b.q)}" target="_blank" rel="noopener">${IC.pin}구글맵</a>`);
   if (b.link) acts.push(`<a class="btn sm" href="${b.link}" target="_blank" rel="noopener">${IC.link}예약 페이지</a>`);
+  if (DRIVE.files[b.id]) acts.push(`<a class="btn sm" href="${esc(DRIVE.files[b.id])}" target="_blank" rel="noopener">${IC.drive}드라이브에서 열기</a>`);
   return `<article class="ticket" style="--c:${c}">
     <div class="main"><div class="tk-top"><span class="tk-type">${esc(b.type)}</span><span class="tk-date">${esc(b.date)}</span></div>
       <div class="tk-title">${esc(b.title)}</div>${route}${kv}${acts.length?`<div class="actions" style="margin-top:6px">${acts.join("")}</div>`:""}</div>
@@ -648,10 +661,12 @@ function ticketHTML(b){
 }
 function renderBook(){
   const el=$("#scroll");
-  el.innerHTML = `<p class="tiny" style="margin:0 0 14px">첨부한 파일은 <b>이 기기의 브라우저에만</b> 저장돼요. 서버로 올라가지 않아서 인터넷이 없어도 열 수 있어요. 동행자 폰에도 따로 넣어 두세요.${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
+  const driveBox = DRIVE.folder ? `<a class="drive" href="${esc(DRIVE.folder)}" target="_blank" rel="noopener">${IC.drive}<span><b>바우처 드라이브 폴더</b><small>원본 보관함 · 나와 동행자만 볼 수 있어요</small></span></a>` : "";
+  el.innerHTML = driveBox + `<p class="tiny" style="margin:0 0 14px">아래 <b>첨부</b>는 현지에서 인터넷 없이 여는 오프라인용 사본이에요. 파일은 <b>이 기기의 브라우저에만</b> 저장되니 동행자 폰에도 따로 넣어 두세요.${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
    + BOOKINGS.map(sec=>`<div class="sec-t">${esc(sec.sec)}</div>${sec.items.map(ticketHTML).join("")}`).join("");
   el.querySelectorAll("input[data-up]").forEach(inp=>inp.onchange=async()=>{
     const bid=inp.dataset.up;
+    try { await navigator.storage?.persist?.(); } catch {}
     for (const f of inp.files){ try{ await DB.put({id:`${bid}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, bid, name:f.name, type:f.type, blob:f, added:Date.now()}); }catch{} }
     await loadFiles(); renderBook();
   });
