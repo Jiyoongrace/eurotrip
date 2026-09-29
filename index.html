@@ -1783,7 +1783,7 @@ const PHOTO = {
  lanchid:["c:Gulyásleves","c:Hungarian goulash soup"], nyc:["c:New York Café Budapest","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
  parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["c:Lángos tejföl sajt","c:Lángos"],
  porks:["c:Vepřové koleno","c:Pečené vepřové koleno","c:Schweinshaxe"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["c:Bibimbap","c:Korean food table"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
- "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["Vienna"], "city-bud":["Budapest"]
+ "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["s:St._Stephen's_Cathedral,_Vienna","Vienna"], "city-bud":["Budapest"]
 };
 const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|\.svg|\.png|\.gif|\.tif|chart|graph|drawing|illustration|cuts|scheme|schema|engraving|lithograph|stamp|poster|menu card|label/i;
 const PH_MEM = {};
@@ -1808,18 +1808,24 @@ async function commonsFor(q){
     .map(p=>whost(p.imageinfo[0].thumburl||p.imageinfo[0].url));
   store.set(key, out); return out;
 }
+async function leadFor(title){ // 위키백과 문서의 대표 사진 1장
+  const key = "phs1:"+title; const c = store.get(key, null); if (Array.isArray(c)) return c;
+  const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title))).json();
+  const u = (j.originalimage && j.originalimage.source) || (j.thumbnail && j.thumbnail.source);
+  const out = u ? [whost(u)] : []; store.set(key, out); return out;
+}
 async function photosFor(id){
   if (PH_MEM[id]) return PH_MEM[id];
   const list = []; let t = null;
   for (const src of (PHOTO[id]||[])) {
     if (list.length >= 3) break;
     try {
-      const l = src.startsWith("c:") ? await commonsFor(src.slice(2)) : await mediaFor(src);
+      const l = src.startsWith("c:") ? await commonsFor(src.slice(2)) : src.startsWith("s:") ? await leadFor(src.slice(2)) : await mediaFor(src);
       for (const u of l) if (list.length < 3 && !list.includes(u)) list.push(u);
-      if (!t && l.length && !src.startsWith("c:")) t = src;
+      if (!t && l.length && !src.startsWith("c:") && !src.startsWith("s:")) t = src;
     } catch {}
   }
-  if (!list.length) for (const src of (PHOTO[id]||[]).filter(x=>!x.startsWith("c:"))) { try {
+  if (!list.length) for (const src of (PHOTO[id]||[]).filter(x=>!x.startsWith("c:")&&!x.startsWith("s:"))) { try {
       const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(src))).json();
       const u = j.thumbnail && j.thumbnail.source; if (u) { list.push(whost(u)); t = src; break; } } catch {} }
   PH_MEM[id] = {list, t}; return PH_MEM[id];
