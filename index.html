@@ -462,21 +462,26 @@ body.noscroll{overflow:hidden}
 .mt-arrow{align-self:center;font:18px var(--f-cute);color:var(--muted)}
 
 
-.grab-row{position:relative;display:flex;justify-content:center;align-items:center;min-height:15px;margin-bottom:6px}
-.grab-row .handle{margin:0}
-.viewtoggle{position:absolute;right:0;top:50%;transform:translateY(-50%);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px;font:12.5px var(--f-cute);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.grab-row{display:flex;justify-content:center;margin-bottom:10px}.grab-row .handle{margin:0}
+.top{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.top .brand{min-width:0}
+.brand>div{min-width:0}
+.brand h1{overflow:hidden;text-overflow:ellipsis}
+.dday{white-space:nowrap;flex:none}
+@media (max-width:480px){.brand{padding:7px 10px;gap:8px}.brand h1{font-size:15px}.brand .sub{font-size:11px}.viewtoggle{padding:7px 11px;font-size:13px}}
+.top .brand{grid-column:1;justify-self:start;max-width:100%}
+.top .days{grid-column:1/-1}
+.viewtoggle{grid-column:2;justify-self:end;align-self:center;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font:14px var(--f-cute);box-shadow:2px 2px 0 var(--ink);white-space:nowrap}
+.viewtoggle[aria-pressed="true"]{background:var(--ink);color:var(--card)}
 .back-all{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
-.app.listmode .top{background:var(--paper);padding-bottom:6px;box-shadow:0 1px 0 var(--line)}
-.app.listmode .maptoggle{display:none}
-@media (min-width:900px){
-  .grab-row{min-height:28px}.grab-row .handle{display:none}
-  .app.listmode #map,.app.listmode .map-note{display:none}
-  .app.listmode .sheet{width:100%;top:0}
-  .app.listmode .sheet .scroll{max-width:760px;width:100%;margin:0 auto}
-  .app.listmode .sheet .grab{max-width:760px;width:100%;margin:0 auto;padding-top:140px}
-  .app.listmode .top{left:0;z-index:1400;background:var(--paper)}
-}
-
+/* 목록 크게: 지도 없이 페이지 전체 */
+.app.listmode #map,.app.listmode .maptoggle,.app.listmode .map-note{display:none}
+.app.listmode{background:var(--paper)}
+.app.listmode .top{background:var(--paper);padding-bottom:8px;border-bottom:1px solid var(--line)}
+.app.listmode .sheet{top:var(--toph,130px);height:auto;bottom:0;left:0;right:0;width:auto;transform:none!important;transition:none;border-radius:0;box-shadow:none;border-right:0}
+.app.listmode .grab{cursor:default;padding-top:12px}.app.listmode .handle{display:none}
+.app.listmode .grab,.app.listmode .scroll{box-sizing:border-box;width:100%;max-width:760px;margin-inline:auto}
+@media (min-width:900px){.app.listmode .top{left:0}}
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -510,12 +515,13 @@ body.noscroll{overflow:hidden}
       </div>
       <span class="dday" id="dday"></span>
     </div>
+    <button class="viewtoggle" id="viewToggle" type="button" aria-pressed="false" title="목록만 크게 보기">📄 목록</button>
     <nav class="days" id="days" aria-label="날짜 선택"></nav>
   </header>
 
   <section class="sheet" id="sheet" aria-label="여행 정보">
     <div class="grab" id="grab">
-      <div class="grab-row"><div class="handle"></div><button class="viewtoggle" id="viewToggle" type="button">📄 목록 크게</button></div>
+      <div class="grab-row"><div class="handle"></div></div>
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" id="tab-plan" aria-selected="true" data-tab="plan">일정</button>
         <button class="tab" role="tab" id="tab-info" aria-selected="false" data-tab="info">여행 정보</button>
@@ -1170,15 +1176,14 @@ function snaps(){ const h=$("#sheet").offsetHeight; const top=$(".top").offsetHe
 function setSheet(pos, y){
   const sh=$("#sheet"); const s=snaps();
   sheetY = y ?? s[pos]; sh.style.setProperty("--y", sheetY+"px"); sh.dataset.pos = pos || "";
-  $(".app").classList.toggle("listmode", pos==="full");
-  const vt=$("#viewToggle"); if (vt) vt.innerHTML = pos==="full" ? "🗺️ 지도 보기" : "📄 목록 크게";
 }
-function toggleView(){
-  if (isDesktop()) { const on = !$(".app").classList.contains("listmode"); $(".app").classList.toggle("listmode", on);
-    $("#viewToggle").innerHTML = on ? "🗺️ 지도 보기" : "📄 목록 크게"; if (!on && map) setTimeout(()=>map.invalidateSize(),50); return; }
-  setSheet($("#sheet").dataset.pos==="full" ? "half" : "full");
-  if ($("#sheet").dataset.pos!=="full" && map) setTimeout(()=>map.invalidateSize(),350);
+function setListMode(on){
+  const app=$(".app"); app.classList.toggle("listmode", on);
+  app.style.setProperty("--toph", $(".top").offsetHeight+"px");
+  const vt=$("#viewToggle"); vt.innerHTML = on ? "🗺️ 지도" : "📄 목록"; vt.setAttribute("aria-pressed", on); vt.title = on ? "지도와 함께 보기" : "목록만 크게 보기";
+  if (!on) { if (!isDesktop()) setSheet("half"); if (map) setTimeout(()=>{ map.invalidateSize(); if(state.tab==="plan") drawMap(); }, 60); }
 }
+function toggleView(){ setListMode(!$(".app").classList.contains("listmode")); }
 $("#viewToggle").addEventListener("click", e=>{ e.stopPropagation(); toggleView(); });
 (function(){
   const grab=$("#grab"), sh=$("#sheet"); let startY=0, startSheet=0, dragging=false, moved=false, t0=0;
@@ -1196,7 +1201,7 @@ $("#viewToggle").addEventListener("click", e=>{ e.stopPropagation(); toggleView(
     setSheet(pos); };
   grab.addEventListener("pointerup", end); grab.addEventListener("pointercancel", end);
   $(".handle").addEventListener("click", ()=>{ if(isDesktop())return; setSheet(sh.dataset.pos==="peek"?"half":sh.dataset.pos==="half"?"full":"peek"); });
-  addEventListener("resize", () => setSheet(sh.dataset.pos || "half"));
+  addEventListener("resize", () => { setSheet(sh.dataset.pos || "half"); $(".app").style.setProperty("--toph", $(".top").offsetHeight+"px"); });
 })();
 
 /* ================= render: day chips ================= */
@@ -1304,6 +1309,7 @@ function renderPlanSel(){
 function select(i, fromMap){
   const d=DAYS[state.day-1]; const s=d.stops[i]; if(!s||!s.ll) return;
   state.sel = i;
+  if ($(".app").classList.contains("listmode")) setListMode(false);
   if (state.tab!=="plan") setTab("plan");
   if (!isDesktop() && ($("#sheet").dataset.pos==="full" || ($("#sheet").dataset.pos==="peek" && fromMap))) setSheet("half");
   renderPlanSel();
