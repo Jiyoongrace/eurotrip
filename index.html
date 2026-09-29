@@ -144,6 +144,14 @@ a{color:inherit}
 .drive{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;text-decoration:none}
 .drive svg{width:22px;height:22px;flex:none;color:var(--bud)}
 .drive span{display:grid;gap:1px;min-width:0}.drive small{color:var(--muted);font-size:12px}
+.drive-panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:grid;gap:10px}
+.dv-head{display:flex;align-items:center;gap:12px}
+.dv-head svg{width:22px;height:22px;flex:none;color:var(--bud)}
+.dv-head span{display:grid;gap:1px;min-width:0}.dv-head small{color:var(--muted);font-size:12px}
+.dv-list{display:grid;gap:6px;max-height:260px;overflow-y:auto}
+.file a.fn{text-decoration:none;color:var(--ink)}
+.file .x.save{color:var(--bud);font-weight:600}
+.file .x:disabled{opacity:.6}
 .sec-t{font:700 13px/1 var(--f-display);color:var(--muted);letter-spacing:.06em;margin:18px 0 10px}
 .sec-t:first-child{margin-top:0}
 .ticket{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
@@ -257,7 +265,9 @@ const HOTELS = {
   bud:{n:"Hilton Budapest", q:"Hilton Budapest Hess András tér", ll:[47.5025,19.0343]}
 };
 /* 구글 드라이브 링크 — "제한됨"(나와 동행자만) 공유 설정된 폴더/파일 링크를 넣으면 버튼이 나타나요 */
+const GOOGLE_CLIENT_ID = "";   // Google Cloud에서 발급한 OAuth 클라이언트 ID (xxxx.apps.googleusercontent.com)
 const DRIVE = {
+  folderId: "1z_i3GCgno6qpo-EnAzU71BFkQ4bmRJsd",
   folder: "https://drive.google.com/drive/folders/1z_i3GCgno6qpo-EnAzU71BFkQ4bmRJsd?usp=drive_link", // 바우처 전체 폴더 링크
   files: {               // 예약 카드별 파일 링크 (선택)
     "fl-in":"", "fl-out":"", "ht-prg":"", "ht-vie":"", "ht-bud":"",
@@ -659,16 +669,85 @@ function ticketHTML(b){
       ${dbOK?`<label class="btn sm upl">${IC.plus}바우처·티켓 추가 (PDF, 사진)<input type="file" accept="application/pdf,image/*" multiple data-up="${b.id}" id="up-${b.id}"></label>`:""}</div>
   </article>`;
 }
+/* ---------- Google Drive 연동 (클라이언트 ID가 있을 때만) ---------- */
+const GD = {
+  token:null, exp:0, files:null, busy:"", err:"", client:null,
+  on(){ return !!GOOGLE_CLIENT_ID && !!DRIVE.folderId; },
+  valid(){ return this.token && Date.now() < this.exp - 60e3; },
+  loadGIS(){ return window.google?.accounts?.oauth2 ? Promise.resolve() : new Promise((res,rej)=>{ const s=document.createElement("script"); s.src="https://accounts.google.com/gsi/client"; s.onload=res; s.onerror=()=>rej(new Error("구글 로그인 스크립트를 불러오지 못했어요")); document.head.appendChild(s); }); },
+  async login(){
+    await this.loadGIS();
+    return new Promise((res,rej)=>{
+      this.client = google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID, scope:"https://www.googleapis.com/auth/drive",
+        callback:r=>{ if(r.error) return rej(new Error(r.error_description||r.error)); this.token=r.access_token; this.exp=Date.now()+(+r.expires_in||3600)*1000; res(); },
+        error_callback:e=>rej(new Error(e.type==="popup_closed"?"로그인 창이 닫혔어요":"로그인하지 못했어요"))});
+      this.client.requestAccessToken({prompt:""});
+    });
+  },
+  async ensure(){ if(!this.valid()) await this.login(); },
+  async api(url, opt={}){
+    await this.ensure();
+    const r = await fetch(url, {...opt, headers:{...(opt.headers||{}), Authorization:`Bearer ${this.token}`}});
+    if (r.status===401){ this.token=null; throw new Error("로그인이 만료됐어요. 다시 연결해 주세요."); }
+    if (!r.ok){ let m=""; try{ m=(await r.json()).error.message }catch{} throw new Error(m||`드라이브 오류 (${r.status})`); }
+    return r;
+  },
+  async list(){
+    const q = enc(`'${DRIVE.folderId}' in parents and trashed=false`);
+    const r = await this.api(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&pageSize=200&fields=files(id,name,mimeType,modifiedTime,webViewLink,appProperties)&supportsAllDrives=true&includeItemsFromAllDrives=true`);
+    this.files = (await r.json()).files || [];
+  },
+  async upload(file, bid, title){
+    const meta = {name: title ? `[${title}] ${file.name}` : file.name, parents:[DRIVE.folderId], appProperties: bid?{bid}:{}};
+    const fd = new FormData();
+    fd.append("metadata", new Blob([JSON.stringify(meta)], {type:"application/json"}));
+    fd.append("file", file);
+    await this.api("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id", {method:"POST", body:fd});
+  },
+  async blob(id){ const r = await this.api(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true`); return r.blob(); }
+};
+const bookTitle = id => { for (const s of BOOKINGS) for (const b of s.items) if (b.id===id) return b.title; return ""; };
+function driveHTML(){
+  const folderLink = DRIVE.folder ? `<a class="btn sm" href="${esc(DRIVE.folder)}" target="_blank" rel="noopener">${IC.link}드라이브에서 열기</a>` : "";
+  if (!GD.on()) return DRIVE.folder ? `<a class="drive" href="${esc(DRIVE.folder)}" target="_blank" rel="noopener">${IC.drive}<span><b>바우처 드라이브 폴더</b><small>원본 보관함 · 나와 동행자만 볼 수 있어요</small></span></a>` : "";
+  const head = `<div class="dv-head">${IC.drive}<span><b>바우처 드라이브 폴더</b><small>${GD.valid()?"연결됨 · 첨부하면 드라이브에도 올라가요":"로그인하면 여기서 올리고 볼 수 있어요"}</small></span></div>`;
+  let body;
+  if (!GD.valid()) body = `<div class="actions"><button class="btn sm primary" id="gdLogin">${IC.drive}구글 로그인하고 연결</button>${folderLink}</div>`;
+  else if (GD.files===null) body = `<div class="empty">목록을 불러오는 중…</div>`;
+  else body = `<div class="dv-list">${GD.files.length ? GD.files.map(f=>{
+      const saved = fileCache.some(x=>x.driveId===f.id);
+      const canSave = /^(application\/pdf|image\/)/.test(f.mimeType);
+      return `<div class="file"><a class="fn" href="${esc(f.webViewLink)}" target="_blank" rel="noopener">${esc(f.name)}</a>${canSave?`<button class="x ${saved?'':'save'}" data-gsave="${f.id}" ${saved?'disabled':''}>${saved?'기기에 있음':'기기에 저장'}</button>`:""}</div>`; }).join("") : `<div class="empty">폴더가 비어 있어요.</div>`}</div>
+    <div class="actions"><label class="btn sm upl">${IC.plus}드라이브에 올리기<input type="file" accept="application/pdf,image/*" multiple id="gdUp"></label><button class="btn sm" id="gdRefresh">새로고침</button>${folderLink}</div>`;
+  const status = GD.busy ? `<div class="tiny">${esc(GD.busy)}</div>` : GD.err ? `<div class="tiny" style="color:var(--prg)">${esc(GD.err)}</div>` : "";
+  return `<section class="drive-panel">${head}${body}${status}</section>`;
+}
+async function gdRun(label, fn){
+  GD.busy=label; GD.err=""; renderBookKeep();
+  try { await fn(); } catch(e){ GD.err=e.message||"문제가 생겼어요"; }
+  GD.busy=""; renderBookKeep();
+}
+function renderBookKeep(){ if (state.tab!=="book") return; const y=$("#scroll").scrollTop; renderBook(); $("#scroll").scrollTop=y; }
+
 function renderBook(){
   const el=$("#scroll");
-  const driveBox = DRIVE.folder ? `<a class="drive" href="${esc(DRIVE.folder)}" target="_blank" rel="noopener">${IC.drive}<span><b>바우처 드라이브 폴더</b><small>원본 보관함 · 나와 동행자만 볼 수 있어요</small></span></a>` : "";
-  el.innerHTML = driveBox + `<p class="tiny" style="margin:0 0 14px">아래 <b>첨부</b>는 현지에서 인터넷 없이 여는 오프라인용 사본이에요. 파일은 <b>이 기기의 브라우저에만</b> 저장되니 동행자 폰에도 따로 넣어 두세요.${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
+  el.innerHTML = driveHTML() + `<p class="tiny" style="margin:0 0 14px">각 카드의 <b>첨부</b>는 현지에서 인터넷 없이 여는 오프라인용 사본이에요. <b>이 기기의 브라우저에만</b> 저장되니 동행자 폰에도 따로 넣어 두세요.${GD.valid()?" 드라이브가 연결돼 있으면 첨부할 때 드라이브에도 함께 올라가요.":""}${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
    + BOOKINGS.map(sec=>`<div class="sec-t">${esc(sec.sec)}</div>${sec.items.map(ticketHTML).join("")}`).join("");
-  el.querySelectorAll("input[data-up]").forEach(inp=>inp.onchange=async()=>{
-    const bid=inp.dataset.up;
+  const lg=$("#gdLogin"); if (lg) lg.onclick=()=>gdRun("구글 로그인 중…", async()=>{ await GD.login(); await GD.list(); });
+  const rf=$("#gdRefresh"); if (rf) rf.onclick=()=>gdRun("목록 불러오는 중…", ()=>GD.list());
+  const up=$("#gdUp"); if (up) up.onchange=()=>{ const fs=[...up.files]; gdRun(`${fs.length}개 올리는 중…`, async()=>{ for(const f of fs) await GD.upload(f); await GD.list(); }); };
+  el.querySelectorAll("[data-gsave]").forEach(b=>b.onclick=()=>gdRun("기기에 저장하는 중…", async()=>{
+    const f=GD.files.find(x=>x.id===b.dataset.gsave); const blob=await GD.blob(f.id);
     try { await navigator.storage?.persist?.(); } catch {}
-    for (const f of inp.files){ try{ await DB.put({id:`${bid}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, bid, name:f.name, type:f.type, blob:f, added:Date.now()}); }catch{} }
-    await loadFiles(); renderBook();
+    await DB.put({id:`drv-${f.id}`, driveId:f.id, bid:(f.appProperties&&f.appProperties.bid)||"etc", name:f.name, type:f.mimeType, blob, added:Date.now()});
+    await loadFiles();
+  }));
+  el.querySelectorAll("input[data-up]").forEach(inp=>inp.onchange=async()=>{
+    const bid=inp.dataset.up; const fs=[...inp.files];
+    try { await navigator.storage?.persist?.(); } catch {}
+    for (const f of fs){ try{ await DB.put({id:`${bid}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, bid, name:f.name, type:f.type, blob:f, added:Date.now()}); }catch{} }
+    await loadFiles(); renderBookKeep();
+    if (GD.valid()) gdRun("드라이브에도 올리는 중…", async()=>{ for(const f of fs) await GD.upload(f, bid, bookTitle(bid)); await GD.list(); });
   });
   el.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openFile(b.dataset.open));
   el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
