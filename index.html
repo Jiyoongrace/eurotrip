@@ -1428,12 +1428,8 @@ function loadArtImg(img){
   }).catch(()=>{ img.dataset.state="fail"; });
 }
 function hydrateArt(root){
-  const imgs = root.querySelectorAll("img[data-wiki]:not([data-state])");
-  if (!imgs.length) return;
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ io.unobserve(e.target); loadArtImg(e.target); } }), {rootMargin:"200px"});
-    imgs.forEach(i=>io.observe(i));
-  } else imgs.forEach(loadArtImg);
+  // 이미지 주소만 먼저 받아두고, 실제 다운로드는 브라우저의 지연 로딩에 맡겨요
+  root.querySelectorAll("img[data-wiki]:not([data-state])").forEach(loadArtImg);
 }
 // 전시실 한 줄: 작은 액자 썸네일 → 누르면 전체 화면 감상 모드
 function artCarousel(a){
@@ -1442,7 +1438,7 @@ function artCarousel(a){
     <div class="gal-head"><span>${esc(a.venue)}</span><em>D${a.day} · ${a.items.length}점</em></div>
     <div class="gal-row">${a.items.map((w,k)=>`
       <button class="gal-tile" data-artv="${vi}:${k}" aria-label="${esc(w.ko)} 크게 보기">
-        <span class="gal-frame"><img data-wiki="${esc(w.wiki)}" alt="${esc(w.ko)}"></span>
+        <span class="gal-frame"><img data-wiki="${esc(w.wiki)}" alt="${esc(w.ko)}" loading="lazy" decoding="async"></span>
         <span class="gal-t">${esc(w.ko)}</span>
         <span class="gal-a">${esc(w.artist)} · ${esc(w.year)}</span>
       </button>`).join("")}</div>
