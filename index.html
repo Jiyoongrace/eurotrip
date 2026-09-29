@@ -381,6 +381,21 @@ body.noscroll{overflow:hidden}
 .ip h4{margin:2px 0 4px;font:700 16px/1.35 var(--f-display)}
 .ip p{margin:0;font-size:14.5px;line-height:1.75}
 
+
+.gal-frame{border:3px solid var(--card);outline:1px solid var(--line)}
+.gal-cta{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:5px;padding:18px 6px 7px;background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;font:12.5px var(--f-cute)}
+.gal-cta i{font-style:normal;width:18px;height:18px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:8px;padding-left:1px}
+.gal-tile:active .gal-frame{transform:scale(.97)}
+.gal-frame{transition:transform .15s}
+.gal-coach{display:inline-block;background:var(--ink);color:var(--card);font:13px var(--f-cute);border-radius:12px;padding:6px 12px;margin:0 0 10px;position:relative}
+.gal-coach::after{content:"";position:absolute;left:24px;bottom:-6px;border:6px solid transparent;border-bottom:0;border-top-color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.gal-row .gal-tile:first-child .gal-frame{animation:nudge 2.4s ease-in-out 3}}
+@keyframes nudge{0%,70%,100%{transform:none}80%{transform:translateY(-6px) rotate(-2deg)}90%{transform:translateY(0) rotate(1deg)}}
+.gtip{background:color-mix(in srgb,var(--c,var(--ink)) 9%,var(--card));border:1.5px dashed color-mix(in srgb,var(--c,var(--ink)) 55%,transparent);border-radius:14px;padding:10px 12px;margin:4px 0 10px}
+.gtip-h{display:flex;align-items:center;gap:6px;margin-bottom:2px}.gtip-h b{font:15px var(--f-cute);font-weight:400}.gtip-h span{font-size:17px}
+.gtip ul{margin:4px 0 0;padding-left:18px;display:grid;gap:6px;font-size:13.8px;line-height:1.65}
+.st-box.fun{background:color-mix(in srgb,var(--vie) 12%,var(--card))}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -1024,7 +1039,7 @@ function drawMap(keepView){
   if (state.day === 0) {
     const path = [HOTELS.prg.ll, [48.81,14.315],[47.536,13.504],[47.5622,13.6493], HOTELS.vie.ll, HOTELS.bud.ll];
     routeLine(path.slice(0,5), cssv("--vie")); routeLine(path.slice(4), cssv("--bud"));
-    [["D4 🚌",[48.35,15.35]],["D8 🚆",[47.95,17.9]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="daytag">${t}</span>`})}).addTo(layer));
+    [["D4 🚌",[47.8,15.15]],["D8 🚆",[47.95,17.9]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="daytag">${t}</span>`})}).addTo(layer));
     STICKERS.forEach(st=>{
       L.marker(st.ll,{zIndexOffset:500,icon:L.divIcon({className:"",iconSize:[0,0],html:`<button class="sticker ${st.side}"><span class="e">${st.e}</span><span class="t"><b>${st.t}</b><small>${st.s}</small></span></button>`})})
        .addTo(layer).on("click",()=>setDay(st.day));
@@ -1546,13 +1561,14 @@ function hydrateArt(root){
   root.querySelectorAll("img[data-wiki]:not([data-state])").forEach(loadArtImg);
 }
 // 전시실 한 줄: 작은 액자 썸네일 → 누르면 전체 화면 감상 모드
+const ART_FIRST = 5; // 첫 번째로 보이는 전시(날짜순 첫 번째: 프라하성)
 function artCarousel(a){
   const vi = ART.indexOf(a);
   return `<div class="gal" style="--c:var(${CITY[a.city].color})">
-    <div class="gal-head"><span>${esc(a.venue)}</span><em>D${a.day} · ${a.items.length}점</em></div>
+    <div class="gal-head"><span>${esc(a.venue)}</span><em>D${a.day} · ${a.items.length}점</em></div>${vi===ART_FIRST?`<div class="gal-coach">👆 그림을 누르면 그림 이야기와 감상 포인트가 열려요</div>`:""}
     <div class="gal-row">${a.items.map((w,k)=>`
       <button class="gal-tile" data-artv="${vi}:${k}" aria-label="${esc(w.ko)} 크게 보기">
-        <span class="gal-frame"><img data-wiki="${esc(w.wiki)}" alt="${esc(w.ko)}" loading="lazy" decoding="async"></span>
+        <span class="gal-frame"><img data-wiki="${esc(w.wiki)}" alt="${esc(w.ko)}" loading="lazy" decoding="async"><span class="gal-cta"><i>▶</i>이야기 보기</span></span>
         <span class="gal-t">${esc(w.ko)}</span>
         <span class="gal-a">${esc(w.artist)} · ${esc(w.year)}</span>
       </button>`).join("")}</div>
@@ -1589,6 +1605,61 @@ function drawArt(){
 }
 function bindArtTiles(root){ root.querySelectorAll("[data-artv]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [v,k]=b.dataset.artv.split(":").map(Number); openArt(v,k); }); }
 
+/* 가이드 한마디: 현장에서 더 재밌게 보는 법 (story id → 팁 목록) */
+const GUIDE_TIPS = {
+ oldtown:["틴 성당의 두 탑을 자세히 보면 굵기가 달라요. 굵은 쪽을 **아담**, 가는 쪽을 **이브**라고 부르기도 해요.","성모 기둥 받침 근처 바닥에서 **프라하 자오선**을 표시한 금속선을 찾아보세요. 옛날엔 이 선에 드리운 그림자로 정오를 알았어요.","📸 구시청 탑 전망대에서 틴 성당과 광장을 내려다보는 사진이 프라하 대표 컷이에요."],
+ orloj:["시계 양옆 인형 넷은 **허영**(거울), **탐욕**(돈주머니), **죽음**(해골), **쾌락**(악기)을 뜻해요. 해골이 종을 치면 나머지 인형들이 고개를 저어요. '나는 아직 아니야'라는 뜻이래요.","아래쪽 12개월 달력 그림은 체코 화가 요제프 마네스의 작품(지금 건 복제본)이에요. 달마다 농부의 일이 그려져 있어요.","📸 인형 쇼보다 쇼를 찍는 수백 대의 휴대폰이 더 장관이라는 농담이 있어요. 정각에는 광장 반대편에서 전체 풍경을 찍어보세요."],
+ charles:["네포무츠키 동판 말고, 다리 난간 중간쯤 작은 **금색 십자가**가 박힌 곳이 그가 실제로 던져진 자리라고 해요. 현지 사람들은 거기에 손을 얹고 소원을 빌어요.","구시가 쪽 다리 탑은 유럽에서 가장 아름다운 고딕 탑으로 꼽혀요. 문 위 조각에서 **카를 4세**를 찾아보세요.","📸 말라스트라나 쪽 캄파 섬으로 내려가는 계단에서 다리를 옆모습으로 찍을 수 있어요."],
+ castle:["정문 위병의 파란 제복은 영화 '아마데우스'로 아카데미 의상상을 받은 **테오도르 피슈테크**가 디자인했어요.","성 비투스 대성당 정면의 커다란 장미창은 **천지창조** 이야기를 담고 있어요. 안에서 보면 해 질 녘 빛이 가장 예뻐요.","황금소로의 작은 집들은 연금술사 작업실, 갑옷 창고 같은 옛 생활을 재현해 놓았어요. 한 집 한 집 문을 열어보는 재미가 있어요."],
+ lobko:["발코니에서 빨간 지붕들 사이로 **초록색 돔**이 보이면, 말라스트라나의 성 미쿨라시 성당이에요. 프라하 바로크의 대표작이에요."],
+ rampart:["정원 끝에서 옛 성 계단으로 내려가면 바로 말라스트라나로 이어져요. 성은 **위에서 아래로 내려오는 동선**이 훨씬 편해요."],
+ wallen:["발렌슈타인은 황제보다 강해질까 두려워한 황제의 명령으로 **1634년 암살**당했어요. 이 화려한 정원은 그 야망의 흔적이에요."],
+ strahov:["도서관 '철학의 방' 천장화의 주제는 '**인류 정신의 발전**'이에요. 고대 철학자부터 성경 인물까지 한 천장에 모여 있어요.","양조장의 대표 맥주 이름은 '성 노르베르트(Sv. Norbert)'예요. 수도회를 세운 성인의 이름이에요.","📸 수도원 앞 언덕길에서 페트르진 공원을 지나 내려가면, 프라하 시내가 발아래 펼쳐지는 산책로가 나와요."],
+ havel:["마리오네트를 살 땐 **얼굴이 나무로 조각된** 것이 제대로 된 수공예품이에요. 플라스틱 얼굴은 대량생산품이에요."],
+ powder:["화약탑 바로 옆 시민회관 1층 카페는 아르누보 인테리어가 그대로 남아 있어요. **구경만 해도 충분히 볼 가치**가 있어요.","여기서 시작하는 첼레트나 거리가 '왕의 길' 첫 구간이에요. 구시가 광장까지 걸어가 보세요."],
+ pilsner:["체코 맥주의 '10°', '12°'는 알코올 도수가 아니라 **발효 전 맥즙의 당도**예요. 숫자가 클수록 진하고, 도수도 대체로 조금 높아요.","주문은 '예드노 피보(Jedno pivo)', 맥주 한 잔이라는 뜻이에요."],
+ krumlov:["'크룸로프'라는 이름은 독일어로 '**굽은 초원**'이라는 뜻의 말에서 왔다는 설이 있어요. 강이 크게 굽은 지형 그대로예요.","매년 6월에는 마을 전체가 중세 복장을 입는 '다섯 잎 장미 축제'가 열려요. 성 곳곳에서 장미 문장을 찾아보세요."],
+ gosau:["호수를 한 바퀴 도는 데 1시간쯤 걸려요. 투어 시간이 짧으면 입구 쪽 호숫가에서 **산 반영 사진**에 집중하세요."],
+ hallstatt:["소금광산에서는 **청동기 시대의 나무 계단**이 발견됐어요. 유럽에서 가장 오래된 나무 계단 중 하나로 꼽혀요.","주민보다 하루 관광객이 훨씬 많아서 주민들이 불편을 호소해 왔어요. 골목에서는 **조용히**, 집 앞에서는 촬영을 삼가요.","📸 대표 엽서 뷰는 마을 북쪽 끝 도로변에서 호수와 교회 첨탑을 함께 담는 구도예요."],
+ stephan:["정문(거인의 문) 왼쪽 벽에 박힌 **금속 막대 두 개**는 중세 상인들이 옷감 길이를 재던 공식 '표준 자'예요.","북쪽 탑 엘리베이터로 올라가면 오스트리아에서 가장 큰 종 '**푸메린**'을 볼 수 있어요. 새해 같은 특별한 날에만 울려요.","지하 카타콤은 가이드와 함께해야만 들어갈 수 있어요."],
+ graben:["그라벤 가운데 지하로 내려가는 계단은 **1905년에 만든 아르누보 공중화장실**이에요. 지금도 운영하는 '관광 명소 화장실'이에요."],
+ anker:["시계 인물 중 **하이든**을 찾아보세요. 비엔나를 대표하는 작곡가 중 한 명이에요."],
+ khm:["박물관 앞 광장 가운데 거대한 동상이 **마리아 테레지아**예요. 그녀를 둘러싼 기마상과 인물들은 당시 장군과 재상, 그리고 모차르트 같은 예술가들이에요.","미술관을 보는 요령: 모든 방을 다 보려 하지 말고, 이 앱의 '작품' 목록에 있는 **대표작 위주로 동선**을 짜세요."],
+ demel:["쇼윈도의 설탕 공예 장식은 계절마다 바뀌어요. 들어가기 전에 **쇼윈도부터** 구경하세요."],
+ karls:["📸 밤에 성당 앞 연못에 비친 반영이 가장 예뻐요. 연못 앞 잔디 쪽이 명당이에요."],
+ musikverein:["박수는 **곡이 완전히 끝났을 때**만 쳐요. 악장 사이에는 조용히 기다리는 게 매너예요.","공연 전 홀 천장을 한번 올려다보세요. 금빛 장식 사이에 음악의 신 아폴론과 뮤즈들이 그려져 있어요."],
+ albertina:["입구 계단 위 테라스에서 **오페라극장과 호텔 자허**가 한눈에 보여요. 사진 찍기 좋은 곳이에요.","'알베르티나 모던'이라는 분관이 따로 있어요. 헷갈리지 않게 **오페라극장 뒤 본관**으로 가세요."],
+ belvedere:["📸 상궁 앞 계단에서 정원 쪽을 내려다보면 **좌우 대칭**이 완벽하게 맞고, 멀리 비엔나 시내가 보여요.","'키스'만 보고 나오기 아까워요. 같은 층의 **실레, 코코슈카** 작품도 비엔나 1900년 예술의 핵심이에요."],
+ hofburg:["미하엘 광장 한가운데 움푹 파인 곳은 **로마 시대 유적** 발굴터예요. 비엔나가 로마 기지였다는 증거예요.","스페인 승마학교의 **아침 훈련**은 정식 공연보다 저렴하게 흰 말들을 볼 수 있는 방법이에요."],
+ prunksaal:["홀 가운데 타원형 공간의 책들은 오스만과 싸운 영웅 **오이겐 공의 개인 장서**예요."],
+ central:["'**카이저슈마렌**'(황제의 팬케이크)을 시켜보세요. 폭신한 팬케이크를 찢어서 자두잼과 먹는 오스트리아 디저트예요.","오후와 저녁에는 피아노 연주가 있어서 분위기가 더 좋아요."],
+ schonbrunn:["'쇤브룬'은 '**아름다운 샘**'이라는 뜻이에요. 정원 안에 이름의 유래가 된 실제 샘 조각이 있어요.","궁전 안 대회랑 천장화에는 마리아 테레지아 시대의 제국이 그려져 있어요. 정원을 걷다가 **동물원**(1752년, 세계에서 가장 오래된 동물원)도 보여요.","📸 궁전 정면보다 **글로리에테 언덕에서 궁전을 내려다보는 구도**가 대표 사진이에요."],
+ opera:["극장 뒤편 바로 옆이 **호텔 자허**예요. 오페라 관람 후 자허토르테가 비엔나의 클래식 코스예요."],
+ sacher:["자허토르테는 **나무 상자**에 담아 팔아서 선물용으로 인기가 많아요. 상온에서 며칠 괜찮아요."],
+ budacastle:["왕궁 안뜰의 '**마차시 분수**'는 헝가리판 트레비 분수예요. 동전을 던지면 다시 부다페스트에 온다고 해요.","대통령 집무실(산도르 궁) 앞에서는 **정각마다 위병 교대식**이 열려요."],
+ bastion:["탑 사이 카페 테라스는 자릿값이 비싸요. 사진은 **무료 아래층 테라스**에서도 충분해요.","📸 해 질 무렵에 가면 한 장소에서 **낮 풍경, 노을, 야경**을 모두 볼 수 있어요."],
+ sunset:["강 건너 페스트 쪽 강변을 달리는 **2번 트램**은 현지인이 추천하는 '가성비 야경 투어'예요.","국회의사당 조명은 해가 완전히 진 뒤 켜져요. **블루 아워**(일몰 후 20~30분)가 사진에 가장 좋아요."],
+ parliament_hu:["의사당 앞 코슈트 광장 지하에는 **1956년 혁명 추모관**이 있어요. 광장 옆 농업부 건물 벽에 박힌 작은 금속 공들은 당시 총탄 자국을 표시한 거예요."],
+ chain:["다리 위에서 부다 쪽을 보면, 언덕을 오르는 **푸니쿨라**와 왕궁이 한 프레임에 들어와요."],
+ basilica:["'신성한 오른손' 유리함은 어두워요. 옆 상자에 **동전을 넣으면 잠깐 불이 켜져요**.","돔 전망대는 부다페스트 **도심 한가운데서 보는 360도 전망**이에요. 국회의사당, 부다 왕궁이 모두 보여요."],
+ market:["2층 먹거리 코너에서 **랑고스, 굴라시, 소시지**를 한 번에 맛볼 수 있어요.","파프리카 가루는 '에데시(édes, 단맛)'와 '치푀시(csípős, 매운맛)'를 확인하고 사세요."],
+ nyc:["줄을 피하려면 **문 여는 시간 직후**가 가장 좋아요. 예약하면 더 편해요."]
+};
+const CITY_FUN = {
+ prg:["모차르트 오페라 '돈 조반니'는 **1787년 프라하**에서 처음 공연됐어요. 비엔나보다 프라하가 모차르트를 더 사랑했다는 말이 있어요.","프라하 지하철역 중 일부는 냉전 시절 **핵 대피소**로도 쓸 수 있게 아주 깊게 만들었어요. 에스컬레이터가 끝없이 길어요.","프라하에는 '**춤추는 빌딩**'이라는 휘어진 현대 건물도 있어요. 전설적인 춤 커플 이름을 따 '진저와 프레드'라고도 불러요."],
+ ck:["성 해자의 곰들은 지금도 이름이 있고, 마을 사람들의 **마스코트** 같은 존재예요."],
+ hs:["할슈타트 사람들은 소금물을 나르려고 **1595년부터 나무 관을 이어** 약 40km 떨어진 곳까지 보냈어요. 지금도 쓰이는 **세계에서 가장 오래된 파이프라인**으로 꼽혀요."],
+ vie:["비엔나는 도시 안에 **포도밭**이 있는 수도예요. '호이리게'라는 와인 농가 선술집에서 그해 햇와인을 마셔요.","**왈츠**는 처음엔 '남녀가 너무 가깝게 붙는 춤'이라고 비난받았지만, 비엔나에서 대유행했어요.","쇤브룬 안 동물원은 **1752년** 문을 연, 지금도 운영하는 세계에서 가장 오래된 동물원이에요."],
+ bud:["부다페스트 지하철 **M1 노선**(1896년)은 런던 다음으로 오래된 지하철 중 하나이고, **유럽 대륙에서는 최초**예요.","부다 왕궁 언덕 아래에는 온천수가 만든 **동굴 미로**가 있어요.","헝가리 사람들은 1년에 파프리카를 엄청나게 먹어요. 식당 테이블에 소금·후추 옆에 **파프리카 통**이 있는 경우도 많아요."]
+};
+const SEE_LIKE_GUIDE = {t:"가이드처럼 보는 법", items:[
+ "성당에 들어가면 **① 제단 → ② 천장 → ③ 뒤로 돌아 파이프 오르간** 순서로 보세요. 대부분 이 세 곳에 가장 공을 들였어요.",
+ "건물 양식 구분법: **고딕**은 뾰족하고 높고 스테인드글라스, **르네상스**는 반듯하고 반원 아치, **바로크**는 금빛·곡선·드라마, **아르누보**는 꽃과 덩굴 무늬와 곡선이에요.",
+ "도시 전망은 **올라가서 보기**(탑·언덕)와 **건너편에서 보기**(강 건너)를 모두 해보세요. 같은 도시가 전혀 다르게 보여요.",
+ "궁전에서는 방마다 **천장, 난로(도자기 벽난로), 샹들리에**를 보세요. 방의 격이 이 세 가지로 드러나요.",
+ "합스부르크 상징인 **쌍두 독수리**는 세 도시 모두에서 찾을 수 있어요. 여행 내내 몇 번 발견하는지 세어보세요."
+]};
+
 const FLAG = {cz:"🇨🇿", at:"🇦🇹", hu:"🇭🇺", prg:"🇨🇿", ck:"🇨🇿", hs:"🇦🇹", vie:"🇦🇹", bud:"🇭🇺"};
 const CITY_OF_STORY = id => GUIDE.cities.find(c=>c.id===id);
 const storyFor = o => o ? STORIES.find(x=>x.o.includes(o)) : null;
@@ -1602,6 +1673,7 @@ function storyBody(st){
   const art = ART_BY_STORY[st.id];
   return `${st.story.map(p=>`<p>${rich(p)}</p>`).join("")}
     ${st.look&&st.look.length?`<div class="st-box"><div class="st-k">👀 이것만은 꼭 보기</div><ul>${st.look.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
+    ${GUIDE_TIPS[st.id]?`<div class="gtip"><div class="gtip-h"><span>🎙️</span><b>가이드 한마디</b></div><ul>${GUIDE_TIPS[st.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
     ${st.tip?`<div class="st-tip"><b>💡 팁</b> ${rich(st.tip)}</div>`:""}
     ${art?`<div class="st-k" style="margin:6px 0 8px">🖼️ 꼭 봐야 할 작품</div>${artCarousel(art)}`:""}
     <div class="actions">
@@ -1624,7 +1696,7 @@ function renderInfo(){
   const cities = G.cities.map(c=>`<details class="gd" style="--c:var(${c.c})" id="ct-${c.id}">
       <summary><span class="flag">${FLAG[c.id]}</span><span class="gd-t"><b>${esc(c.name)} <em>${esc(c.days)}</em></b><small>${esc(c.hook)}</small></span></summary>
       <div class="gd-b">${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
-        <div class="st-box"><div class="st-k">📌 알아두면 좋은 것</div><ul>${c.know.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div></div></details>`).join("");
+        <div class="st-box"><div class="st-k">📌 알아두면 좋은 것</div><ul>${c.know.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>${CITY_FUN[c.id]?`<div class="st-box fun"><div class="st-k">✨ 알면 재밌는 것</div><ul>${CITY_FUN[c.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}</div></details>`).join("");
   const spots = G.cities.map(c=>{
     const list = STORIES.filter(s=>s.city===c.id); if (!list.length) return "";
     return `<div class="spot-city" style="--c:var(${c.c})">${FLAG[c.id]} ${esc(c.name)}</div>` + list.map(st=>{ const w=whereInPlan(st);
@@ -1650,7 +1722,7 @@ function renderInfo(){
   <section id="i-spot" class="isec"><div class="sec-t">명소별 이야기</div><p class="tiny" style="margin:0 0 10px">일정 탭의 장소 카드에서 <b>이야기</b> 버튼을 눌러도 같은 내용을 볼 수 있어요.</p>${spots}</section>
 
   <section id="i-tip" class="isec"><div class="sec-t">여행 꿀팁</div>
-    ${G.tips.map(t=>`<div class="tipg"><div class="st-k">${({"돈과 결제":"💳","교통":"🚋","식당과 카페":"☕","안전과 매너":"🛡️","날씨와 옷":"🧥"})[t.t]||""} ${esc(t.t)}</div><ul>${t.items.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`).join("")}
+    ${[SEE_LIKE_GUIDE].concat(G.tips).map(t=>`<div class="tipg"><div class="st-k">${({"가이드처럼 보는 법":"🎙️","돈과 결제":"💳","교통":"🚋","식당과 카페":"☕","안전과 매너":"🛡️","날씨와 옷":"🧥"})[t.t]||""} ${esc(t.t)}</div><ul>${t.items.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`).join("")}
   </section>
 
   <section id="i-prep" class="isec"><div class="sec-t">준비</div>
