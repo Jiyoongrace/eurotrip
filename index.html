@@ -461,6 +461,22 @@ body.noscroll{overflow:hidden}
 .mt-s small{font-size:11px;color:var(--muted);line-height:1.35}
 .mt-arrow{align-self:center;font:18px var(--f-cute);color:var(--muted)}
 
+
+.grab-row{position:relative;display:flex;justify-content:center;align-items:center;min-height:15px;margin-bottom:6px}
+.grab-row .handle{margin:0}
+.viewtoggle{position:absolute;right:0;top:50%;transform:translateY(-50%);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px;font:12.5px var(--f-cute);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.back-all{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
+.app.listmode .top{background:var(--paper);padding-bottom:6px;box-shadow:0 1px 0 var(--line)}
+.app.listmode .maptoggle{display:none}
+@media (min-width:900px){
+  .grab-row{min-height:28px}.grab-row .handle{display:none}
+  .app.listmode #map,.app.listmode .map-note{display:none}
+  .app.listmode .sheet{width:100%;top:0}
+  .app.listmode .sheet .scroll{max-width:760px;width:100%;margin:0 auto}
+  .app.listmode .sheet .grab{max-width:760px;width:100%;margin:0 auto;padding-top:140px}
+  .app.listmode .top{left:0;z-index:1400;background:var(--paper)}
+}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -499,7 +515,7 @@ body.noscroll{overflow:hidden}
 
   <section class="sheet" id="sheet" aria-label="여행 정보">
     <div class="grab" id="grab">
-      <div class="handle"></div>
+      <div class="grab-row"><div class="handle"></div><button class="viewtoggle" id="viewToggle" type="button">📄 목록 크게</button></div>
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" id="tab-plan" aria-selected="true" data-tab="plan">일정</button>
         <button class="tab" role="tab" id="tab-info" aria-selected="false" data-tab="info">여행 정보</button>
@@ -986,7 +1002,7 @@ const dateKey = () => { const n=new Date(); return `${n.getFullYear()}-${String(
 
 /* ================= state ================= */
 const todayIdx = DAYS.findIndex(d => d.date === dateKey());
-let state = { day: todayIdx >= 0 ? todayIdx + 1 : store.get("day", 0), tab: "plan", sel: null }; // 처음 열면 항상 일정부터
+let state = { day: 0, tab: "plan", sel: null }; // 처음 열면 항상 일정의 전체 동선부터
 if (state.day > DAYS.length) state.day = 0;
 
 /* ================= D-day ================= */
@@ -1150,11 +1166,20 @@ function refreshPins(){
 
 /* ================= sheet (mobile drag) ================= */
 let sheetY = 0;
-function snaps(){ const h=$("#sheet").offsetHeight; return {full:0, half:Math.round(h*0.46), peek:Math.max(0,h-150)}; }
+function snaps(){ const h=$("#sheet").offsetHeight; const top=$(".top").offsetHeight; return {full:Math.max(0, top-58), half:Math.round(h*0.46), peek:Math.max(0,h-150)}; }
 function setSheet(pos, y){
   const sh=$("#sheet"); const s=snaps();
   sheetY = y ?? s[pos]; sh.style.setProperty("--y", sheetY+"px"); sh.dataset.pos = pos || "";
+  $(".app").classList.toggle("listmode", pos==="full");
+  const vt=$("#viewToggle"); if (vt) vt.innerHTML = pos==="full" ? "🗺️ 지도 보기" : "📄 목록 크게";
 }
+function toggleView(){
+  if (isDesktop()) { const on = !$(".app").classList.contains("listmode"); $(".app").classList.toggle("listmode", on);
+    $("#viewToggle").innerHTML = on ? "🗺️ 지도 보기" : "📄 목록 크게"; if (!on && map) setTimeout(()=>map.invalidateSize(),50); return; }
+  setSheet($("#sheet").dataset.pos==="full" ? "half" : "full");
+  if ($("#sheet").dataset.pos!=="full" && map) setTimeout(()=>map.invalidateSize(),350);
+}
+$("#viewToggle").addEventListener("click", e=>{ e.stopPropagation(); toggleView(); });
 (function(){
   const grab=$("#grab"), sh=$("#sheet"); let startY=0, startSheet=0, dragging=false, moved=false, t0=0;
   grab.addEventListener("pointerdown", e => { if (isDesktop()) return;
@@ -1162,7 +1187,7 @@ function setSheet(pos, y){
   grab.addEventListener("pointermove", e => { if(!dragging) return; const dy=e.clientY-startY;
     if (!moved && Math.abs(dy)>6) { moved=true; sh.classList.add("dragging"); try{grab.setPointerCapture(e.pointerId)}catch{} }
     if (!moved) return;
-    const s=snaps(); sheetY=Math.min(s.peek, Math.max(0,startSheet+dy)); sh.style.setProperty("--y", sheetY+"px"); });
+    const s=snaps(); sheetY=Math.min(s.peek, Math.max(s.full,startSheet+dy)); sh.style.setProperty("--y", sheetY+"px"); });
   const end = e => { if(!dragging) return; dragging=false; sh.classList.remove("dragging");
     if(!moved){ return; }
     const s=snaps(); const v=(e.clientY-startY)/Math.max(1,performance.now()-t0);
@@ -1258,12 +1283,14 @@ function renderPlan(){
       <div class="actions">
         ${rURL?`<a class="btn primary" href="${rURL}" target="_blank" rel="noopener">${IC.route}하루 동선 구글맵으로 (${modeKo})</a>`:""}
         <button class="btn" id="fitBtn">${IC.fit}전체 보기</button>
+        <button class="btn back-all" id="allBtn">← 전체 동선</button>
       </div></div>
     ${tipHTML(d.tip)}
     <div class="tlegend">${[...new Set(d.stops.map(typeOf))].map(k=>`<span style="--c:var(${TYPES[k].c})">${TYPES[k].e} ${TYPES[k].ko}</span>`).join("")}</div>
     <ol class="tl">${d.stops.map((s,i)=>{ if(s.ll) n++; return stopHTML(d,s,i,n); }).join("")}</ol>
     <p class="tiny">지도 위 점선은 순서를 보여주는 직선 연결이에요. 실제 길은 구글맵 버튼으로 확인하세요.</p>`;
   el.querySelectorAll("[data-story]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openStory(STORIES.find(x=>x.id===b.dataset.story)); });
+  $("#allBtn").onclick = () => setDay(0);
   $("#fitBtn").onclick = () => { state.sel=null; renderPlanSel(); drawMap(); };
   el.querySelectorAll(".body[data-i]").forEach(b=>{
     b.addEventListener("click", e=>{ if (e.target.closest("a,button")) return; select(+b.dataset.i, false); });
@@ -1740,7 +1767,7 @@ const PHOTO = {
  oldtown:["Old_Town_Square"], orloj:["Prague_astronomical_clock"], charles:["Charles_Bridge"], castle:["Prague_Castle","St._Vitus_Cathedral"],
  lobko:["c:Lobkowicz Palace Prague Castle","Lobkowicz_Palace"], rampart:["Garden_on_the_Ramparts","Prague_Castle"], wallen:["Wallenstein_Palace"], strahov:["Strahov_Monastery"],
  hradcany:["c:Smažený řízek","c:Wiener Schnitzel plate"], trdlo:["c:Trdelník Praha","c:Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["c:Pilsner Urquell glass beer","c:Pilsner Urquell tankové pivo"],
- krumlov:["Český_Krumlov_Castle","Český_Krumlov"], gosau:["Gosausee","Gosau"], hallstatt:["Hallstatt"],
+ krumlov:["Český_Krumlov_Castle","Český_Krumlov"], gosau:["c:Vorderer Gosausee Dachstein","c:Gosausee Dachstein reflection","Gosausee"], hallstatt:["Hallstatt"],
  stephan:["St._Stephen's_Cathedral,_Vienna"], graben:["Graben,_Vienna","Graben_(Vienna)"], peter:["St._Peter's_Church,_Vienna","Peterskirche,_Vienna"], anker:["Ankeruhr"],
  khm:["Kunsthistorisches_Museum"], demel:["c:Demel Kohlmarkt Wien","Demel"], karls:["Karlskirche"], musikverein:["Wiener_Musikverein","Musikverein"], albertina:["Albertina"],
  belvedere:["Belvedere,_Vienna","Belvedere_Palace"], hofburg:["Hofburg"], prunksaal:["Austrian_National_Library"],
@@ -1966,7 +1993,7 @@ function render(){
   if (state.tab==="plan") renderPlan(); else if (state.tab==="book") renderBook(); else renderInfo();
 }
 function setTab(t){ state.tab=t; store.set("tab",t); $("#scroll").scrollTop=0; render(); if(!isDesktop() && $("#sheet").dataset.pos==="peek") setSheet("half"); }
-function setDay(i){ state.day=i; state.sel=null; store.set("day",i); if(state.tab!=="plan"){state.tab="plan"; store.set("tab","plan");} renderChips(); $("#scroll").scrollTop=0; render(); drawMap(); if(!isDesktop() && $("#sheet").dataset.pos==="full") setSheet("half"); }
+function setDay(i){ state.day=i; state.sel=null; store.set("day",i); if(state.tab!=="plan"){state.tab="plan"; store.set("tab","plan");} renderChips(); $("#scroll").scrollTop=0; render(); drawMap(); }
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setTab(t.dataset.tab));
 
 (async function start(){
