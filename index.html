@@ -443,6 +443,24 @@ body.noscroll{overflow:hidden}
 .names .pimg{width:64px;height:78px;border-radius:12px;object-fit:cover;object-position:top;background:var(--soft);opacity:0;transition:opacity .4s}
 .names .pimg[data-state="ok"]{opacity:1}
 
+
+.ip-ill{grid-column:1/-1;margin:-2px -2px 6px;border-radius:12px;overflow:hidden;min-width:0}
+.mini-map{display:block;width:100%;height:auto;max-width:100%}
+.mm-sea{fill:var(--sea)}
+.mm-pin{color:var(--ink)}
+.mm-flag{font-size:26px}
+.mm-name{font:15px var(--f-cute);fill:var(--ink)}
+.mm-note{font:13px var(--f-cute);fill:#C0392B}
+.mm-note.soft{fill:color-mix(in srgb,var(--ink) 45%,transparent)}
+.mm-river{font:13px var(--f-cute);fill:color-mix(in srgb,var(--river) 70%,var(--ink));font-style:italic}
+.mm-dot{fill:var(--card);stroke:var(--ink);stroke-width:2}
+.mini-tl{display:flex;align-items:stretch;gap:4px;padding:14px 8px;background:color-mix(in srgb,var(--sea) 60%,var(--card))}
+.mt-s{flex:1;min-width:0;display:grid;justify-items:center;text-align:center;gap:3px;background:var(--card);border:2px solid var(--c);border-radius:14px;padding:10px 4px;box-shadow:2px 2px 0 var(--c)}
+.mt-e{font-size:26px;line-height:1}
+.mt-s b{font:15px var(--f-cute);font-weight:400}
+.mt-s small{font-size:11px;color:var(--muted);line-height:1.35}
+.mt-arrow{align-self:center;font:18px var(--f-cute);color:var(--muted)}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -1824,6 +1842,40 @@ function storyBody(st){
 }
 const NAME_IMG = {"합스부르크 가문":"Schönbrunn_Palace","마리아 테레지아":"Maria_Theresa","프란츠 요제프 1세":"Franz_Joseph_I_of_Austria","엘리자베트(시시)":"Empress_Elisabeth_of_Austria","카를 4세":"Charles_IV,_Holy_Roman_Emperor","이슈트반 1세":"Stephen_I_of_Hungary"};
 const COUNTRY_IMG = {cz:["Prague_Castle","🏰 블타바강 위의 프라하성"], at:["Schönbrunn_Palace","👑 합스부르크의 여름 궁전, 쇤브룬"], hu:["Fisherman's_Bastion","🏯 부다 언덕의 어부의 요새"]};
+/* ================= '먼저 읽어요' 그림 (그림 지도 미니 버전) ================= */
+function miniMap(kind){
+  const B = {w:12.2, e:20.4, n:51.1, s:46.3}, K = 58, KY = K*1.47;
+  const X = lon => ((lon-B.w)*K).toFixed(1), Y = lat => ((B.n-lat)*KY).toFixed(1);
+  const W = ((B.e-B.w)*K).toFixed(0), H = ((B.n-B.s)*KY).toFixed(0);
+  const path = ring => "M"+ring.map(([x,y])=>X(x)+","+Y(y)).join("L")+"Z";
+  const line = pts => "M"+pts.map(([la,lo])=>X(lo)+","+Y(la)).join("L");
+  const lands = COUNTRIES.features.map(f=>{ const id=f.properties.id; const cls=["cz","at","hu"].includes(id)?id:"etc";
+    return `<path class="land land-${cls}" d="${f.geometry.coordinates.map(pl=>pl.map(path).join("")).join("")}" stroke-width="1.6"/>`; }).join("");
+  const rivers = [RIVERS.danube, RIVERS.vltava].map(r=>`<path d="${line(r)}" class="river-bank" fill="none" stroke-width="${kind==="rivers"?11:7}" stroke-linecap="round" stroke-linejoin="round"/><path d="${line(r)}" class="river" fill="none" stroke-width="${kind==="rivers"?6:3.5}" stroke-linecap="round" stroke-linejoin="round"/>`).join("");
+  let extra = "";
+  if (kind === "flags") {
+    const curtain = [[48.6,13.8],[48.77,14.7],[48.96,15.0],[48.8,15.9],[48.62,16.9],[48.0,17.1],[47.7,16.8],[47.45,16.5],[47.0,16.35],[46.75,16.15]];
+    extra += `<path d="${line(curtain)}" fill="none" stroke="#D0453A" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/>`;
+    extra += `<text x="${X(16.55)}" y="${Y(49.35)}" class="mm-note">냉전 시절 '철의 장막'</text>`;
+    [["🇨🇿","체코",15.2,49.95],["🇦🇹","오스트리아",14.6,47.75],["🇭🇺","헝가리",19.3,47.2]].forEach(([f,n,lo,la])=>{
+      extra += `<g class="mm-pin"><line x1="${X(lo)}" y1="${Y(la)}" x2="${X(lo)}" y2="${(+Y(la)-34).toFixed(1)}" stroke="currentColor" stroke-width="2"/><circle cx="${X(lo)}" cy="${Y(la)}" r="4" fill="currentColor"/>
+        <text x="${(+X(lo)+2).toFixed(1)}" y="${(+Y(la)-30).toFixed(1)}" class="mm-flag">${f}</text><text x="${X(lo)}" y="${(+Y(la)+20).toFixed(1)}" class="mm-name" text-anchor="middle">${n}</text></g>`;
+    });
+    extra += `<text x="${X(17.3)}" y="${Y(50.85)}" class="mm-note soft" text-anchor="middle">폴란드</text><text x="${X(13.0)}" y="${Y(49.6)}" class="mm-note soft">독일</text><text x="${X(18.6)}" y="${Y(48.75)}" class="mm-note soft">슬로바키아</text>`;
+  } else {
+    [["프라하",14.42,50.087,"🏰"],["비엔나",16.373,48.208,"🎻"],["부다페스트",19.045,47.5,"🏛️"]].forEach(([n,lo,la,e])=>{
+      extra += `<circle cx="${X(lo)}" cy="${Y(la)}" r="15" class="mm-dot"/><text x="${X(lo)}" y="${(+Y(la)+6).toFixed(1)}" text-anchor="middle" font-size="16">${e}</text><text x="${X(lo)}" y="${(+Y(la)+34).toFixed(1)}" text-anchor="middle" class="mm-name">${n}</text>`;
+    });
+    extra += `<text x="${X(13.3)}" y="${Y(49.25)}" class="mm-river">블타바강</text><text x="${X(17.1)}" y="${Y(48.4)}" class="mm-river">다뉴브강</text><text x="${X(18.85)}" y="${Y(46.75)}" class="mm-river">↓ 흑해로</text>`;
+  }
+  return `<svg class="mini-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${kind==="flags"?"체코·오스트리아·헝가리 위치 지도":"블타바강과 다뉴브강, 세 도시 위치"}"><rect width="${W}" height="${H}" class="mm-sea"/>${lands}${rivers}${extra}</svg>`;
+}
+function miniTimeline(){
+  const st = [["🏰","프라하","중세 · 보헤미아 왕국","--prg"],["👑","비엔나","합스부르크 제국의 절정","--vie"],["🏛️","부다페스트","20세기의 상처와 회복","--bud"]];
+  return `<div class="mini-tl">${st.map(([e,n,t,c],i)=>`<div class="mt-s" style="--c:var(${c})"><span class="mt-e">${e}</span><b>${n}</b><small>${t}</small></div>${i<2?`<span class="mt-arrow">→</span>`:""}`).join("")}</div>`;
+}
+const INTRO_ILL = {0:()=>miniMap("flags"), 1:()=>miniMap("rivers"), 2:()=>miniTimeline()};
+
 const INFO_NAV = [["i-bg","배경"],["i-cty","나라"],["i-city","도시"],["i-art","작품"],["i-spot","명소"],["i-tip","꿀팁"],["i-prep","준비"]];
 function renderInfo(){
   const el=$("#scroll"), G=GUIDE;
@@ -1851,7 +1903,7 @@ function renderInfo(){
   <section id="i-bg" class="isec">
     <div class="sec-t">📖 먼저 읽어요</div>
     <div class="intro-lead"><figure class="hero"><img class="lead-img" data-cq="Hungarian Parliament Building night Danube" data-fallback="Hungarian_Parliament_Building" alt="밤의 헝가리 국회의사당" loading="lazy"></figure><div class="k">ONE LINE</div><h3>${esc(G.intro.title)}</h3><p>${rich(G.intro.lead)}</p></div>
-    ${G.intro.paras.map(p=>`<div class="ip"><span class="ic">${p.ic}</span><div><h4>${esc(p.h)}</h4><p>${rich(p.t)}</p></div></div>`).join("")}
+    ${G.intro.paras.map((p,i)=>`<div class="ip">${INTRO_ILL[i]?`<div class="ip-ill">${INTRO_ILL[i]()}</div>`:""}<span class="ic">${p.ic}</span><div><h4>${esc(p.h)}</h4><p>${rich(p.t)}</p></div></div>`).join("")}
     <div class="st-k" style="margin:16px 0 8px">⏳ 천 년을 한 번에</div>
     <ol class="tline">${G.intro.timeline.map(([y,t])=>`<li><span>${esc(y)}</span><p>${rich(t)}</p></li>`).join("")}</ol>
     <div class="st-k" style="margin:16px 0 8px">👑 이 이름은 계속 나와요</div>
