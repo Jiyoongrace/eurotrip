@@ -411,7 +411,10 @@ body.noscroll{overflow:hidden}
 @media (prefers-reduced-motion:no-preference){.ph-skel{animation:sk 1.2s linear infinite}}
 @keyframes sk{to{background-position:-200% 0}}
 .ph-n{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font:500 11px var(--f-mono);border-radius:999px;padding:2px 8px}
-.ph-cr{display:block;font-size:11px;color:var(--muted);margin-top:5px;text-decoration:none}
+.ph-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.ph-cr{font-size:11px;color:var(--muted);text-decoration:none}
+.ph-more{font-size:12px;font-weight:600;color:var(--ink);text-decoration:none;background:var(--soft);border-radius:999px;padding:3px 10px}
+.ph-g{margin-bottom:6px}
 
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
@@ -1680,18 +1683,18 @@ const SEE_LIKE_GUIDE = {t:"가이드처럼 보는 법", items:[
 /* ================= 명소 대표 사진 (위키백과 문서의 사진을 불러와요) ================= */
 const PHOTO = {
  oldtown:["Old_Town_Square"], orloj:["Prague_astronomical_clock"], charles:["Charles_Bridge"], castle:["Prague_Castle","St._Vitus_Cathedral"],
- lobko:["Lobkowicz_Palace"], rampart:["Garden_on_the_Ramparts","Prague_Castle"], wallen:["Wallenstein_Palace"], strahov:["Strahov_Monastery"],
- hradcany:["Hradčany_Square","Hradčany"], trdlo:["Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["Pilsner_Urquell"],
+ lobko:["c:Lobkowicz Palace Prague Castle","Lobkowicz_Palace"], rampart:["Garden_on_the_Ramparts","Prague_Castle"], wallen:["Wallenstein_Palace"], strahov:["Strahov_Monastery"],
+ hradcany:["Schnitzel","Hradčany_Square"], trdlo:["Trdelník"], havel:["Havelské_tržiště","Old_Town_(Prague)"], powder:["Powder_Tower,_Prague","Powder_Tower_(Prague)"], pilsner:["Pilsner_Urquell"],
  krumlov:["Český_Krumlov_Castle","Český_Krumlov"], gosau:["Gosausee","Gosau"], hallstatt:["Hallstatt"],
  stephan:["St._Stephen's_Cathedral,_Vienna"], graben:["Graben,_Vienna","Graben_(Vienna)"], peter:["St._Peter's_Church,_Vienna","Peterskirche,_Vienna"], anker:["Ankeruhr"],
- khm:["Kunsthistorisches_Museum"], demel:["Demel"], karls:["Karlskirche"], musikverein:["Wiener_Musikverein","Musikverein"], albertina:["Albertina"],
- belvedere:["Belvedere,_Vienna","Belvedere_Palace"], hofburg:["Hofburg"], prunksaal:["Austrian_National_Library"], palmen:["Burggarten"],
- rathaus:["Vienna_City_Hall","Rathaus,_Vienna"], parliament_at:["Austrian_Parliament_Building"], central:["Café_Central"], schonbrunn:["Schönbrunn_Palace"],
- gloriette:["Gloriette_(Schönbrunn)","Gloriette"], opera:["Vienna_State_Opera"], karntner:["Kärntner_Straße"], sacher:["Sachertorte","Hotel_Sacher"],
+ khm:["Kunsthistorisches_Museum"], demel:["c:Demel Kohlmarkt Wien","Demel"], karls:["Karlskirche"], musikverein:["Wiener_Musikverein","Musikverein"], albertina:["Albertina"],
+ belvedere:["Belvedere,_Vienna","Belvedere_Palace"], hofburg:["Hofburg"], prunksaal:["Austrian_National_Library"],
+ rathaus:["Vienna_City_Hall","Rathaus,_Vienna"], parliament_at:["Austrian_Parliament_Building"], central:["c:Café Central Wien","Café_Central"], schonbrunn:["Schönbrunn_Palace"],
+ gloriette:["Gloriette_(Schönbrunn)","Gloriette"], opera:["Vienna_State_Opera"], karntner:["Kärntner_Straße"], sacher:["c:Hotel Sacher Wien","Sachertorte"],
  budacastle:["Buda_Castle"], bastion:["Fisherman's_Bastion"], matthias:["Matthias_Church"], chimney:["Kürtőskalács"], sunset:["Hungarian_Parliament_Building"],
- lanchid:["Goulash"], nyc:["New_York_Café","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
+ lanchid:["Goulash"], nyc:["c:New York Café Budapest","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
  parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["Lángos"],
- porks:["Pork_knuckle"], savoy:["Malá_Strana"], hilton:["Buda_Castle_District","Castle_District"],
+ porks:["Pork_knuckle"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["Korean_cuisine"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
  "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["Vienna"], "city-bud":["Budapest"]
 };
 const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|svg$|\.tif|chart|graph/i;
@@ -1707,12 +1710,31 @@ async function mediaFor(title){
     .slice(0,3).map(it=>whost(it.srcset[0].src));
   store.set(key, out); return out;
 }
+async function commonsFor(q){
+  const key = "phc1:"+q;
+  const c = store.get(key, null); if (Array.isArray(c)) return c;
+  const u = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=960&gsrsearch="+encodeURIComponent(q+" filetype:bitmap");
+  const j = await (await fetch(u)).json();
+  const pages = Object.values((j.query&&j.query.pages)||{}).sort((a,b)=>(a.index||0)-(b.index||0));
+  const out = pages.filter(p=>!PH_SKIP.test(p.title||"") && p.imageinfo && p.imageinfo[0] && (p.imageinfo[0].thumburl||p.imageinfo[0].url)).slice(0,3)
+    .map(p=>whost(p.imageinfo[0].thumburl||p.imageinfo[0].url));
+  store.set(key, out); return out;
+}
 async function photosFor(id){
   if (PH_MEM[id]) return PH_MEM[id];
-  for (const t of (PHOTO[id]||[])) { try { const l = await mediaFor(t); if (l.length) { PH_MEM[id] = {list:l, t}; return PH_MEM[id]; } } catch {} }
-  for (const t of (PHOTO[id]||[])) { try { const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t))).json();
-      const u = j.thumbnail && j.thumbnail.source; if (u) { PH_MEM[id] = {list:[whost(u)], t}; return PH_MEM[id]; } } catch {} }
-  PH_MEM[id] = {list:[], t:null}; return PH_MEM[id];
+  const list = []; let t = null;
+  for (const src of (PHOTO[id]||[])) {
+    if (list.length >= 3) break;
+    try {
+      const l = src.startsWith("c:") ? await commonsFor(src.slice(2)) : await mediaFor(src);
+      for (const u of l) if (list.length < 3 && !list.includes(u)) list.push(u);
+      if (!t && l.length && !src.startsWith("c:")) t = src;
+    } catch {}
+  }
+  if (!list.length) for (const src of (PHOTO[id]||[]).filter(x=>!x.startsWith("c:"))) { try {
+      const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(src))).json();
+      const u = j.thumbnail && j.thumbnail.source; if (u) { list.push(whost(u)); t = src; break; } } catch {} }
+  PH_MEM[id] = {list, t}; return PH_MEM[id];
 }
 // 위키미디어가 허용하는 표준 크기로 바꿔서 시도 (960 → 500 → 330 → 원본)
 function sizes(u){
@@ -1727,16 +1749,18 @@ function setImg(img, u){
   img.onload = ()=>{ img.dataset.state = "ok"; };
   img.src = c[0];
 }
-function photoSlot(id){ return PHOTO[id] ? `<div class="ph" data-ph="${id}"><div class="ph-track"><div class="ph-s ph-skel"></div></div></div>` : ""; }
+function photoSlot(id, q){ return PHOTO[id] ? `<div class="ph" data-ph="${id}" data-q="${esc(q||"")}"><div class="ph-track"><div class="ph-s ph-skel"></div></div></div>` : ""; }
+const gImg = q => `https://www.google.com/search?tbm=isch&q=${enc(q)}`;
 function hydratePhotos(root){
   root.querySelectorAll(".ph[data-ph]:not([data-done])").forEach(async box=>{
     box.dataset.done = "1";
     const {list, t} = await photosFor(box.dataset.ph);
-    if (!list.length) { box.remove(); return; }
+    const q = box.dataset.q;
+    if (!list.length) { box.innerHTML = q ? `<a class="btn sm ph-g" href="${gImg(q)}" target="_blank" rel="noopener">📷 구글에서 사진 보기</a>` : ""; return; }
     const tr = box.querySelector(".ph-track");
     tr.innerHTML = list.map((u,k)=>`<div class="ph-s"><img alt="" loading="lazy" decoding="async"><span class="ph-n">${k+1}/${list.length}</span></div>`).join("");
     tr.querySelectorAll("img").forEach((im,k)=>setImg(im, list[k]));
-    box.insertAdjacentHTML("beforeend", `<a class="ph-cr" href="https://en.wikipedia.org/wiki/${enc(t)}" target="_blank" rel="noopener">사진: Wikimedia Commons${list.length>1?" · 옆으로 넘겨보기 →":""}</a>`);
+    box.insertAdjacentHTML("beforeend", `<div class="ph-foot"><a class="ph-cr" href="${t?`https://en.wikipedia.org/wiki/${enc(t)}`:"https://commons.wikimedia.org"}" target="_blank" rel="noopener">사진: Wikimedia Commons${list.length>1?" · 옆으로 넘겨보기 →":""}</a>${q?`<a class="ph-more" href="${gImg(q)}" target="_blank" rel="noopener">📷 구글 사진 더 보기</a>`:""}</div>`);
   });
 }
 
@@ -1751,7 +1775,7 @@ function whereInPlan(st){
 function storyBody(st){
   const w = whereInPlan(st);
   const art = ART_BY_STORY[st.id];
-  return `${photoSlot(st.id)}${st.story.map(p=>`<p>${rich(p)}</p>`).join("")}
+  return `${photoSlot(st.id, st.o[0])}${st.story.map(p=>`<p>${rich(p)}</p>`).join("")}
     ${st.look&&st.look.length?`<div class="st-box"><div class="st-k">👀 이것만은 꼭 보기</div><ul>${st.look.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
     ${GUIDE_TIPS[st.id]?`<div class="gtip"><div class="gtip-h"><span>🎙️</span><b>가이드 한마디</b></div><ul>${GUIDE_TIPS[st.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}
     ${st.tip?`<div class="st-tip"><b>💡 팁</b> ${rich(st.tip)}</div>`:""}
@@ -1775,7 +1799,7 @@ function renderInfo(){
       </div></details>`).join("");
   const cities = G.cities.map(c=>`<details class="gd" style="--c:var(${c.c})" id="ct-${c.id}">
       <summary><span class="flag">${FLAG[c.id]}</span><span class="gd-t"><b>${esc(c.name)} <em>${esc(c.days)}</em></b><small>${esc(c.hook)}</small></span></summary>
-      <div class="gd-b">${photoSlot("city-"+c.id)}${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
+      <div class="gd-b">${photoSlot("city-"+c.id, c.en)}${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
         <div class="st-box"><div class="st-k">📌 알아두면 좋은 것</div><ul>${c.know.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>${CITY_FUN[c.id]?`<div class="st-box fun"><div class="st-k">✨ 알면 재밌는 것</div><ul>${CITY_FUN[c.id].map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>`:""}</div></details>`).join("");
   const spots = G.cities.map(c=>{
     const list = STORIES.filter(s=>s.city===c.id); if (!list.length) return "";
