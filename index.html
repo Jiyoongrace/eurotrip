@@ -283,6 +283,62 @@ mark{background:linear-gradient(transparent 55%,color-mix(in srgb,var(--c,var(--
 .art-src{font-size:11px;color:var(--muted);margin-top:6px}
 .art-hint{font-size:12px;color:var(--muted);text-align:right}
 
+
+/* ---------- Gallery (썸네일 줄 + 감상 모드) ---------- */
+.gal{margin:0 0 16px}
+.gal-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px}
+.gal-head span{font:700 15px var(--f-display)}
+.gal-head em{font:500 12px var(--f-mono);font-style:normal;color:var(--c)}
+.gal-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+.gal-row::-webkit-scrollbar{display:none}
+.story-body .gal-row{margin:0 -18px;padding-inline:18px}
+.gal-tile{flex:0 0 132px;scroll-snap-align:start;border:0;background:none;padding:0;text-align:left;display:grid;gap:3px}
+.gal-frame{display:block;width:132px;height:160px;border-radius:14px;overflow:hidden;background:color-mix(in srgb,var(--c) 20%,var(--soft));box-shadow:0 6px 16px rgba(0,0,0,.14);position:relative}
+.gal-frame img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s,transform .3s}
+.gal-frame img[data-state="ok"]{opacity:1}
+.gal-tile:hover .gal-frame img{transform:scale(1.04)}
+.gal-t{font-size:13px;font-weight:600;line-height:1.3;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gal-a{font-size:11.5px;color:var(--muted)}
+body.noscroll{overflow:hidden}
+.artv{position:fixed;inset:0;z-index:6000;background:#0E1114;color:#EEF1F0;display:grid;grid-template-rows:auto minmax(0,1fr) minmax(0,1.05fr)}
+.av-top{padding:calc(10px + env(safe-area-inset-top,0px)) 14px 6px;display:grid;gap:8px}
+.av-bars{display:flex;gap:4px}
+.av-bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.25)}
+.av-bars i.done,.av-bars i.on{background:#fff}
+.av-bar2{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:rgba(255,255,255,.75)}
+.av-bar2 button{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:10px;padding:6px 12px;font-weight:600}
+.av-stage{position:relative;display:grid;place-items:center;padding:6px 14px;min-height:0;touch-action:pan-y}
+.av-stage img{max-width:100%!important;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 12px 40px rgba(0,0,0,.5);opacity:0;transition:opacity .35s}
+.av-stage img[data-state="ok"]{opacity:1}
+.av-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:24px;line-height:1}
+.av-nav.prev{left:8px}.av-nav.next{right:8px}
+.av-text{overflow-y:auto;background:#161B1F;border-radius:22px 22px 0 0;padding:16px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.av-count{font:500 12px var(--f-mono);color:rgba(255,255,255,.55)}
+.av-text h2{margin:4px 0 2px;font:700 22px/1.25 var(--f-display);color:#fff}
+.av-meta{font-size:13.5px;font-weight:600;color:var(--c)}
+.av-en{font-size:12px;color:rgba(255,255,255,.5);font-style:italic;margin-bottom:6px}
+.av-text p{font-size:14.5px;line-height:1.75;margin:8px 0;color:rgba(255,255,255,.9)}
+.av-text ul{margin:6px 0 0;padding-left:18px;display:grid;gap:5px;font-size:14px;line-height:1.6;color:rgba(255,255,255,.88)}
+.av-box{background:rgba(255,255,255,.06);border-radius:14px;padding:10px 12px;margin:10px 0}
+.av-box .st-k{color:rgba(255,255,255,.6)}
+.av-text mark{background:linear-gradient(transparent 55%,color-mix(in srgb,var(--c) 45%,transparent) 55%);color:#fff}
+.av-text .yr{background:rgba(255,255,255,.1);color:#fff}
+.av-text .term .q{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8)}
+.av-text .art-src{color:rgba(255,255,255,.45);font-size:11px}
+@media (min-width:900px){.artv{grid-template-columns:minmax(0,1.4fr) minmax(360px,1fr);grid-template-rows:auto minmax(0,1fr)}.av-top{grid-column:1/-1}.av-text{border-radius:22px 0 0 0}}
+/* ---------- 먼저 읽어요 ---------- */
+.intro-lead{position:relative;background:var(--ink);color:var(--card);border-radius:18px;padding:18px 18px 16px;margin:0 0 14px}
+.intro-lead .k{font:600 12px var(--f-mono);letter-spacing:.06em;opacity:.7}
+.intro-lead h3{margin:6px 0 8px;font:700 21px/1.3 var(--f-display);text-wrap:balance;color:var(--card)}
+.intro-lead p{margin:0;font-size:15px;line-height:1.75}
+.intro-lead mark{background:linear-gradient(transparent 55%,rgba(216,170,72,.55) 55%);color:inherit}
+.intro-lead .term .q{background:rgba(255,255,255,.18);color:inherit}
+.intro-lead .yr{background:rgba(255,255,255,.14);color:inherit}
+.ip{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;margin:0 0 10px}
+.ip .ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:21px}
+.ip h4{margin:2px 0 4px;font:700 16px/1.35 var(--f-display)}
+.ip p{margin:0;font-size:14.5px;line-height:1.75}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -332,6 +388,11 @@ mark{background:linear-gradient(transparent 55%,color-mix(in srgb,var(--c,var(--
   </section>
 </div>
 
+<div class="artv" id="artv" hidden role="dialog" aria-modal="true" aria-label="작품 감상">
+  <div class="av-top"><div class="av-bars" id="avBars"></div><div class="av-bar2"><span id="avVenue"></span><button id="avClose" aria-label="닫기">닫기</button></div></div>
+  <div class="av-stage" id="avStage"><img id="avImg" alt=""><button class="av-nav prev" id="avPrev" aria-label="이전 작품">‹</button><button class="av-nav next" id="avNext" aria-label="다음 작품">›</button></div>
+  <div class="av-text" id="avText"></div>
+</div>
 <div class="story" id="story" hidden role="dialog" aria-modal="true" aria-labelledby="storyTitle">
   <div class="story-card">
     <div class="story-head"><div><div class="story-meta" id="storyMeta"></div><h2 id="storyTitle"></h2></div><button class="story-x" id="storyClose" aria-label="닫기">닫기</button></div>
@@ -499,9 +560,9 @@ const GUIDE = {
   title: "이 여행을 한 문장으로",
   lead: "프라하·비엔나·부다페스트는 약 400년 동안 한 왕가, 합스부르크 가문 아래 묶여 있던 도시들이에요. 그래서 세 도시는 건물도, 카페도, 음식도 서로 닮았으면서 조금씩 달라요. 이 차이를 알고 다니면 훨씬 재밌어요.",
   paras: [
-   "우리가 흔히 '동유럽'이라고 부르지만, 현지 사람들은 이 지역을 **'중부 유럽'이라고 불러요**. 동유럽이라는 말은 냉전 시절 철의 장막 동쪽(공산권)에 있었다는 정치적인 구분에서 나왔어요. 실제로 체코와 헝가리는 공산권이었고, 오스트리아는 중립국으로 서방 쪽이었어요. 그래서 오스트리아 사람에게 '동유럽'이라고 하면 살짝 어색해할 수 있어요.",
-   "세 도시를 잇는 건 강이에요. 프라하는 블타바강(독일어로 몰다우) 위에, 비엔나와 부다페스트는 도나우강(영어로 다뉴브) 위에 있어요. 다뉴브강은 10개 나라를 지나 흑해로 흘러가는, **세계에서 가장 많은 나라를 지나는 강**이에요.",
-   "이번 여행은 시간 순서로도 딱 맞아요. 프라하에서는 **중세와 보헤미아 왕국**을, 비엔나에서는 **합스부르크 제국의 절정**을, 부다페스트에서는 제국이 무너진 뒤 **20세기의 상처와 회복**을 보게 돼요."
+   {ic:"🗺️", h:"'동유럽'이 아니라 '중부 유럽'", t:"우리가 흔히 '동유럽'이라고 부르지만, 현지 사람들은 이 지역을 **'중부 유럽'이라고 불러요**. 동유럽이라는 말은 냉전 시절 철의 장막 동쪽(공산권)에 있었다는 정치적인 구분에서 나왔어요. 실제로 체코와 헝가리는 공산권이었고, 오스트리아는 중립국으로 서방 쪽이었어요. 그래서 오스트리아 사람에게 '동유럽'이라고 하면 살짝 어색해할 수 있어요."},
+   {ic:"🌊", h:"세 도시를 잇는 두 강", t:"세 도시를 잇는 건 강이에요. 프라하는 블타바강(독일어로 몰다우) 위에, 비엔나와 부다페스트는 도나우강(영어로 다뉴브) 위에 있어요. 다뉴브강은 10개 나라를 지나 흑해로 흘러가는, **세계에서 가장 많은 나라를 지나는 강**이에요."},
+   {ic:"⏳", h:"여행 순서가 곧 역사 순서", t:"이번 여행은 시간 순서로도 딱 맞아요. 프라하에서는 **중세와 보헤미아 왕국**을, 비엔나에서는 **합스부르크 제국의 절정**을, 부다페스트에서는 제국이 무너진 뒤 **20세기의 상처와 회복**을 보게 돼요."}
   ],
   timeline: [
    ["9세기", "프라하성과 보헤미아 왕국의 시작, 마자르족(헝가리인)이 카르파티아 분지에 정착(896년)"],
@@ -1207,6 +1268,13 @@ async function openFile(id){
     }
   } catch { body.innerHTML='<div class="msg">PDF를 표시하지 못했어요. 인터넷에 연결된 상태에서 한 번 열어 두면 이후엔 오프라인에서도 열려요.</div>'; }
 }
+$("#avClose").onclick=closeArt; $("#avPrev").onclick=()=>stepArt(-1); $("#avNext").onclick=()=>stepArt(1);
+addEventListener("keydown", e=>{ if($("#artv").hidden) return; if(e.key==="Escape") closeArt(); if(e.key==="ArrowRight") stepArt(1); if(e.key==="ArrowLeft") stepArt(-1); });
+(function(){ let x0=null,y0=0; const st=$("#avStage");
+  st.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; y0=e.touches[0].clientY; },{passive:true});
+  st.addEventListener("touchend",e=>{ if(x0==null) return; const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
+    if (Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)) stepArt(dx<0?1:-1); },{passive:true});
+})();
 $("#storyClose").onclick=closeStory; $("#story").addEventListener("click",e=>{ if(e.target.id==="story") closeStory(); });
 addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#story").hidden) closeStory(); });
 $("#vclose").onclick=()=>{ $("#viewer").hidden=true; $("#vbody").innerHTML=""; };
@@ -1335,48 +1403,81 @@ function rich(text){
 }
 /* ---------- 작품 캐러셀 ---------- */
 const IMG = {};
-async function loadArtImg(el){
-  const t = el.dataset.wiki; if (!t) return;
-  const set = src => { el.style.backgroundImage = `url("${src}")`; el.classList.add("ok"); };
-  if (IMG[t]) return set(IMG[t]);
-  const cached = store.get("img:"+t, null); if (cached) { IMG[t]=cached; return set(cached); }
-  try {
-    const r = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t));
-    const j = await r.json(); let src = j.thumbnail && j.thumbnail.source;
-    if (!src) return;
-    src = src.replace(/\/(\d+)px-/, "/800px-");
-    IMG[t]=src; store.set("img:"+t, src); set(src);
-  } catch {}
+// 위키미디어는 정해진 크기(330/500/960/1280…)만 허용해서 960px로 요청해요
+function artSrc(t){
+  if (IMG[t]) return Promise.resolve(IMG[t]);
+  const c = store.get("img3:"+t, null); if (c) { IMG[t]=c; return Promise.resolve(c); }
+  return fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t)).then(r=>r.json()).then(j=>{
+    let src = (j.thumbnail && j.thumbnail.source) || (j.originalimage && j.originalimage.source);
+    if (!src) throw new Error("no image");
+    src = src.replace(/\/\d+px-/, "/960px-");
+    IMG[t]=src; store.set("img3:"+t, src); return src;
+  });
 }
-function artCarousel(a){
-  const n = a.items.length;
-  return `<div class="art" style="--c:var(${CITY[a.city].color})">
-    <div class="art-head"><span>${esc(a.venue)}</span><em>D${a.day} · ${n}점</em></div>
-    <div class="art-track">${a.items.map((w,k)=>`
-      <article class="art-card">
-        <div class="art-img" data-wiki="${esc(w.wiki)}" role="img" aria-label="${esc(w.ko)}"><span class="art-n">${k+1}/${n}</span></div>
-        <div class="art-b">
-          <div class="art-t">${esc(w.ko)}</div>
-          <div class="art-m">${rich(w.artist)} · <span class="yr">${esc(w.year)}</span></div>
-          <div class="art-en">${esc(w.en)}</div>
-          <p>${rich(w.desc)}</p>
-          <div class="st-k">👀 이렇게 보세요</div>
-          <ul>${w.look.map(x=>`<li>${rich(x)}</li>`).join("")}</ul>
-          <div class="art-bio"><b>🎨 ${esc(w.artist)}</b><p>${rich(w.bio)}</p></div>
-          <a class="art-src" href="https://en.wikipedia.org/wiki/${enc(w.wiki)}" target="_blank" rel="noopener">이미지: Wikimedia Commons · 위키백과</a>
-        </div>
-      </article>`).join("")}</div>
-    ${n>1?`<div class="art-hint">옆으로 넘겨서 ${n}점 모두 보기 →</div>`:""}
-  </div>`;
+function loadArtImg(img){
+  const t = img.dataset.wiki; if (!t || img.dataset.state) return;
+  img.dataset.state = "loading";
+  artSrc(t).then(src=>{
+    img.onload = ()=>{ img.dataset.state="ok"; };
+    img.onerror = ()=>{ // 캐시된 주소가 막혔으면 한 번 새로 받아요
+      if (img.dataset.retry) { img.dataset.state="fail"; return; }
+      img.dataset.retry="1"; delete IMG[t]; store.set("img3:"+t, null);
+      artSrc(t).then(s2=>{ img.src=s2; }).catch(()=>{ img.dataset.state="fail"; });
+    };
+    img.src = src;
+  }).catch(()=>{ img.dataset.state="fail"; });
 }
 function hydrateArt(root){
-  const imgs = root.querySelectorAll(".art-img:not(.ok)");
+  const imgs = root.querySelectorAll("img[data-wiki]:not([data-state])");
   if (!imgs.length) return;
   if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ io.unobserve(e.target); loadArtImg(e.target); } }), {rootMargin:"300px"});
+    const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ io.unobserve(e.target); loadArtImg(e.target); } }), {rootMargin:"200px"});
     imgs.forEach(i=>io.observe(i));
   } else imgs.forEach(loadArtImg);
 }
+// 전시실 한 줄: 작은 액자 썸네일 → 누르면 전체 화면 감상 모드
+function artCarousel(a){
+  const vi = ART.indexOf(a);
+  return `<div class="gal" style="--c:var(${CITY[a.city].color})">
+    <div class="gal-head"><span>${esc(a.venue)}</span><em>D${a.day} · ${a.items.length}점</em></div>
+    <div class="gal-row">${a.items.map((w,k)=>`
+      <button class="gal-tile" data-artv="${vi}:${k}" aria-label="${esc(w.ko)} 크게 보기">
+        <span class="gal-frame"><img data-wiki="${esc(w.wiki)}" alt="${esc(w.ko)}"></span>
+        <span class="gal-t">${esc(w.ko)}</span>
+        <span class="gal-a">${esc(w.artist)} · ${esc(w.year)}</span>
+      </button>`).join("")}</div>
+  </div>`;
+}
+/* ---------- 감상 모드 (스토리처럼 넘기기) ---------- */
+const AV = {v:0, k:0};
+function openArt(v,k){ AV.v=v; AV.k=k; $("#artv").hidden=false; document.body.classList.add("noscroll"); drawArt(); }
+function closeArt(){ $("#artv").hidden=true; document.body.classList.remove("noscroll"); }
+function stepArt(d){
+  const a=ART[AV.v]; let k=AV.k+d, v=AV.v;
+  if (k>=a.items.length){ v=(v+1)%ART.length; k=0; } else if (k<0){ v=(v-1+ART.length)%ART.length; k=ART[v].items.length-1; }
+  AV.v=v; AV.k=k; drawArt();
+}
+function drawArt(){
+  const a=ART[AV.v], w=a.items[AV.k], root=$("#artv");
+  root.style.setProperty("--c", `var(${CITY[a.city].color})`);
+  $("#avBars").innerHTML = a.items.map((_,i)=>`<i class="${i<AV.k?'done':i===AV.k?'on':''}"></i>`).join("");
+  $("#avVenue").textContent = `${a.venue} · D${a.day}`;
+  const img=$("#avImg"); img.removeAttribute("data-state"); img.removeAttribute("data-retry"); img.removeAttribute("src");
+  img.dataset.wiki=w.wiki; img.alt=w.ko; loadArtImg(img);
+  $("#avText").innerHTML = `
+    <div class="av-count">${AV.k+1} / ${a.items.length}</div>
+    <h2>${esc(w.ko)}</h2>
+    <div class="av-meta">${rich(w.artist)} · <span class="yr">${esc(w.year)}</span></div>
+    <div class="av-en">${esc(w.en)}</div>
+    <p>${rich(w.desc)}</p>
+    <div class="av-box"><div class="st-k">👀 이렇게 보세요</div><ul>${w.look.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>
+    <div class="av-box bio"><div class="st-k">🎨 ${esc(w.artist)}</div><p>${rich(w.bio)}</p></div>
+    <a class="art-src" href="https://en.wikipedia.org/wiki/${enc(w.wiki)}" target="_blank" rel="noopener">이미지: Wikimedia Commons · 위키백과</a>`;
+  $("#avText").scrollTop=0;
+  // 다음 그림 미리 받아두기
+  const nx = a.items[AV.k+1]; if (nx) artSrc(nx.wiki).then(s=>{ const i=new Image(); i.src=s; }).catch(()=>{});
+}
+function bindArtTiles(root){ root.querySelectorAll("[data-artv]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const [v,k]=b.dataset.artv.split(":").map(Number); openArt(v,k); }); }
 
 const FLAG = {cz:"🇨🇿", at:"🇦🇹", hu:"🇭🇺", prg:"🇨🇿", ck:"🇨🇿", hs:"🇦🇹", vie:"🇦🇹", bud:"🇭🇺"};
 const CITY_OF_STORY = id => GUIDE.cities.find(c=>c.id===id);
@@ -1423,10 +1524,9 @@ function renderInfo(){
   <nav class="inav" aria-label="여행 정보 목차">${INFO_NAV.map(([id,t])=>`<button data-jump="${id}">${t}</button>`).join("")}</nav>
 
   <section id="i-bg" class="isec">
-    <div class="sec-t">먼저 읽어요</div>
-    <h3 class="big">${esc(G.intro.title)}</h3>
-    <p class="lead">${rich(G.intro.lead)}</p>
-    ${G.intro.paras.map(p=>`<p class="rd">${rich(p)}</p>`).join("")}
+    <div class="sec-t">📖 먼저 읽어요</div>
+    <div class="intro-lead"><div class="k">ONE LINE</div><h3>${esc(G.intro.title)}</h3><p>${rich(G.intro.lead)}</p></div>
+    ${G.intro.paras.map(p=>`<div class="ip"><span class="ic">${p.ic}</span><div><h4>${esc(p.h)}</h4><p>${rich(p.t)}</p></div></div>`).join("")}
     <div class="st-k" style="margin:16px 0 8px">⏳ 천 년을 한 번에</div>
     <ol class="tline">${G.intro.timeline.map(([y,t])=>`<li><span>${esc(y)}</span><p>${rich(t)}</p></li>`).join("")}</ol>
     <div class="st-k" style="margin:16px 0 8px">👑 이 이름은 계속 나와요</div>
@@ -1458,7 +1558,8 @@ function renderInfo(){
   el.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>{ const t=document.getElementById(b.dataset.jump); if(!t) return;
     if (!isDesktop() && $("#sheet").dataset.pos!=="full") setSheet("full");
     el.scrollTo({top:t.offsetTop-54, behavior:"smooth"}); });
-  bindGoto(el); hydrateArt(el);
+  bindGoto(el); hydrateArt(el); bindArtTiles(el);
+  el.querySelectorAll("details").forEach(d=>d.addEventListener("toggle",()=>{ if(d.open) hydrateArt(d); }));
 }
 function bindGoto(root){
   root.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{
@@ -1473,7 +1574,7 @@ function openStory(st){
   $("#storyBody").innerHTML = storyBody(st);
   $("#story").style.setProperty("--c", c?`var(${c.c})`:"var(--ink)");
   $("#story").hidden = false; $("#storyBody").scrollTop = 0;
-  bindGoto($("#storyBody")); hydrateArt($("#storyBody"));
+  bindGoto($("#storyBody")); hydrateArt($("#storyBody")); bindArtTiles($("#storyBody"));
 }
 function closeStory(){ $("#story").hidden = true; }
 
