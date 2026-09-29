@@ -433,7 +433,11 @@ body.noscroll{overflow:hidden}
 .lead-img{display:block;width:100%;aspect-ratio:16/9;max-width:100%;object-fit:cover;border-radius:14px;margin:0 0 12px;background:var(--soft);opacity:0;transition:opacity .4s}
 .lead-img[data-state="ok"]{opacity:1}
 .lead-img[data-state="fail"]{display:none}
-.intro-lead .lead-img{margin:0 0 12px;border-radius:12px}
+.hero{position:relative;margin:0 0 12px;border-radius:16px;overflow:hidden;background:var(--soft);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.hero .lead-img{margin:0;border-radius:0;aspect-ratio:4/3}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.6));pointer-events:none}
+.hero figcaption{position:absolute;left:14px;right:14px;bottom:12px;z-index:1;color:#fff;font:16px var(--f-cute);text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.intro-lead .hero{margin:-4px -4px 14px}
 .names > div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start}
 .names > div > div{min-width:0}
 .names .pimg{width:64px;height:78px;border-radius:12px;object-fit:cover;object-position:top;background:var(--soft);opacity:0;transition:opacity .4s}
@@ -1819,13 +1823,13 @@ function storyBody(st){
     </div>`;
 }
 const NAME_IMG = {"합스부르크 가문":"Schönbrunn_Palace","마리아 테레지아":"Maria_Theresa","프란츠 요제프 1세":"Franz_Joseph_I_of_Austria","엘리자베트(시시)":"Empress_Elisabeth_of_Austria","카를 4세":"Charles_IV,_Holy_Roman_Emperor","이슈트반 1세":"Stephen_I_of_Hungary"};
-const COUNTRY_IMG = {cz:["Karlštejn","체코 보헤미아의 카를슈테인 성"], at:["Grossglockner","오스트리아 알프스 그로스글로크너"], hu:["Lake_Balaton","헝가리 벌러톤 호수"]};
+const COUNTRY_IMG = {cz:["Prague_Castle","🏰 블타바강 위의 프라하성"], at:["Schönbrunn_Palace","👑 합스부르크의 여름 궁전, 쇤브룬"], hu:["Fisherman's_Bastion","🏯 부다 언덕의 어부의 요새"]};
 const INFO_NAV = [["i-bg","배경"],["i-cty","나라"],["i-city","도시"],["i-art","작품"],["i-spot","명소"],["i-tip","꿀팁"],["i-prep","준비"]];
 function renderInfo(){
   const el=$("#scroll"), G=GUIDE;
   const countries = G.countries.map(c=>`<details class="gd" style="--c:var(${c.c})" id="c-${c.id}">
       <summary><span class="flag">${FLAG[c.id]}</span><span class="gd-t"><b>${esc(c.name)}</b><small>${esc(c.hook)}</small></span></summary>
-      <div class="gd-b"><img class="lead-img" data-wiki="${COUNTRY_IMG[c.id][0]}" alt="${COUNTRY_IMG[c.id][1]}" loading="lazy"><div class="tiny" style="margin:-8px 0 8px">${COUNTRY_IMG[c.id][1]}</div>
+      <div class="gd-b"><figure class="hero"><img class="lead-img" data-wiki="${COUNTRY_IMG[c.id][0]}" alt="${esc(COUNTRY_IMG[c.id][1])}" loading="lazy"><figcaption>${COUNTRY_IMG[c.id][1]}</figcaption></figure>
         <div class="meta-row"><span>${esc(c.lang)}</span><span>${esc(c.cur)}</span></div>
         ${c.paras.map(p=>`<p>${rich(p)}</p>`).join("")}
         <div class="st-box"><div class="st-k">✨ 알면 재밌는 것</div><ul>${c.fun.map(x=>`<li>${rich(x)}</li>`).join("")}</ul></div>
@@ -1846,7 +1850,7 @@ function renderInfo(){
 
   <section id="i-bg" class="isec">
     <div class="sec-t">📖 먼저 읽어요</div>
-    <div class="intro-lead"><img class="lead-img" data-wiki="Wachau" alt="다뉴브강이 흐르는 오스트리아 바하우 계곡" loading="lazy"><div class="k">ONE LINE</div><h3>${esc(G.intro.title)}</h3><p>${rich(G.intro.lead)}</p></div>
+    <div class="intro-lead"><figure class="hero"><img class="lead-img" data-wiki="Hungarian_Parliament_Building" alt="다뉴브강 위의 헝가리 국회의사당" loading="lazy"><figcaption>다뉴브강 위의 부다페스트 국회의사당</figcaption></figure><div class="k">ONE LINE</div><h3>${esc(G.intro.title)}</h3><p>${rich(G.intro.lead)}</p></div>
     ${G.intro.paras.map(p=>`<div class="ip"><span class="ic">${p.ic}</span><div><h4>${esc(p.h)}</h4><p>${rich(p.t)}</p></div></div>`).join("")}
     <div class="st-k" style="margin:16px 0 8px">⏳ 천 년을 한 번에</div>
     <ol class="tline">${G.intro.timeline.map(([y,t])=>`<li><span>${esc(y)}</span><p>${rich(t)}</p></li>`).join("")}</ol>
