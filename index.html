@@ -1,0 +1,766 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="icon.svg"><style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>프라하·비엔나·부다페스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#EEF1F0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+/* Layout: full-screen map, draggable bottom sheet on phone / fixed left panel on desktop. Booking cards are ticket stubs. */
+:root{
+  --paper:#EEF1F0; --card:#FFFFFF; --ink:#16202B; --muted:#5B6670; --line:#D5DCDB; --soft:#E3E8E7;
+  --prg:#B5452B; --vie:#9C6F14; --bud:#17706B; --warn:#8A5A00; --warnbg:#FBF1DC;
+  --shadow:0 10px 30px rgba(22,32,43,.16);
+  --f-display:"Bricolage Grotesque","IBM Plex Sans KR",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1519; --card:#182229; --ink:#E6ECEE; --muted:#94A1A9; --line:#2B3740; --soft:#202C34;
+  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1519; --card:#182229; --ink:#E6ECEE; --muted:#94A1A9; --line:#2B3740; --soft:#202C34;
+  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.app{position:relative;height:100%;overflow:hidden}
+
+/* ---------- Leaflet core (inlined) ---------- */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:none}
+.leaflet-container img{max-width:none!important;max-height:none!important}
+.leaflet-tile,.leaflet-marker-icon{user-select:none;-webkit-user-drag:none}
+.leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane svg{z-index:200}
+.leaflet-zoom-box{width:0;height:0;z-index:800}
+.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}
+.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:move}
+.leaflet-marker-icon,.leaflet-pane>svg path{pointer-events:none}
+.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:auto}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--muted);font-size:10px;padding:0 6px;margin:0;border-radius:6px 0 0 0}
+.leaflet-control-attribution a{color:var(--muted)}
+
+/* ---------- Map ---------- */
+#map{position:absolute;inset:0;background:var(--soft)}
+#map.no-tiles{background-color:var(--soft);background-image:radial-gradient(color-mix(in srgb,var(--muted) 35%,transparent) 1px,transparent 1px);background-size:18px 18px}
+.map-note{position:absolute;left:12px;right:12px;top:118px;z-index:1100;background:var(--card);color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12.5px;box-shadow:var(--shadow)}
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--c);display:grid;place-items:center;border:2px solid var(--card);box-shadow:0 4px 10px rgba(0,0,0,.25);transition:transform .2s}
+.pin b{transform:rotate(45deg);color:#fff;font:600 12.5px/1 var(--f-mono)}
+.pin.on{transform:rotate(-45deg) scale(1.28)}
+.pin.on::after{content:"";position:absolute;inset:-6px;border-radius:inherit;border:2px solid var(--c);opacity:.6;animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{transform:scale(.8);opacity:.7}to{transform:scale(1.5);opacity:0}}
+.pin.hotel{border-radius:8px;transform:none;background:var(--ink)}
+.pin.hotel b{transform:none;color:var(--card)}
+.pin.dot{width:14px;height:14px;border-width:2px}
+.lbl{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-size:12px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.12);transform:translate(20px,-22px);display:inline-block;pointer-events:none}
+
+/* ---------- Top bar ---------- */
+.top{position:absolute;left:0;right:0;top:0;z-index:1200;padding:12px 12px 0;display:grid;gap:10px;pointer-events:none}
+.top>*{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 12px;box-shadow:var(--shadow);justify-self:start;max-width:100%}
+.brand h1{margin:0;font:700 17px/1.1 var(--f-display);letter-spacing:-.01em;white-space:nowrap}
+.brand .sub{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.dday{font:600 12px/1 var(--f-mono);background:var(--ink);color:var(--card);border-radius:8px;padding:6px 8px}
+.days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin:0 -12px;padding-inline:12px}
+.days::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:6px 11px;display:grid;gap:1px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:background .15s,color .15s}
+.chip .d{font:600 12px/1.1 var(--f-mono);color:var(--c,var(--muted))}
+.chip .t{font-size:12.5px;font-weight:500;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.chip[aria-pressed="true"] .d{color:inherit;opacity:.75}
+.chip .today{font-size:10px;font-weight:600;color:var(--prg)}
+
+/* ---------- Sheet ---------- */
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:1300;height:calc(100% - 64px);background:var(--paper);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateY(var(--y,50%));transition:transform .32s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.sheet.dragging{transition:none}
+.grab{flex:none;padding:8px 16px 0;touch-action:none;cursor:grab}
+.handle{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 10px}
+.tabs{display:flex;gap:4px;background:var(--soft);border-radius:12px;padding:4px}
+.tab{flex:1;border:0;background:none;border-radius:9px;padding:8px 6px;font-size:13.5px;font-weight:500;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 40px;-webkit-overflow-scrolling:touch}
+
+/* ---------- Day header ---------- */
+.dayhead{display:grid;gap:8px;margin-bottom:14px}
+.dayhead .eyebrow{font:600 12px/1 var(--f-mono);color:var(--c);letter-spacing:.04em}
+.dayhead h2{margin:0;font:700 24px/1.15 var(--f-display);letter-spacing:-.015em;text-wrap:balance}
+.dayhead .meta{color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 11px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn.primary{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.btn svg{width:15px;height:15px;flex:none}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:9px}
+
+.alert{background:var(--warnbg);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:13.5px;margin:0 0 14px}
+.alert strong{color:var(--warn);display:block;margin-bottom:4px;font-size:13px}
+.alert ul{margin:0;padding-left:18px}
+
+/* ---------- Timeline ---------- */
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:15px;top:14px;bottom:14px;width:2px;background:repeating-linear-gradient(var(--line) 0 5px,transparent 5px 9px)}
+.stop{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:6px 0}
+.num{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:2px solid var(--c);color:var(--c);font:600 13px/1 var(--f-mono)}
+.num.none{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.stop.on .num{background:var(--c);color:#fff}
+.body{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:5px;min-width:0;transition:border-color .15s,box-shadow .15s}
+.stop.clickable .body{cursor:pointer}
+.stop.on .body{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.row1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.time{font:500 12px/1 var(--f-mono);color:var(--muted)}
+.kind{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.stars{color:var(--vie);font-size:12px;letter-spacing:1px}
+.name{font-weight:600;font-size:15.5px;line-height:1.35}
+.orig{color:var(--muted);font-size:12.5px}
+.note{font-size:13.5px;color:var(--ink);opacity:.85}
+.approx{font-size:11.5px;color:var(--warn)}
+.stop .actions{margin-top:3px}
+
+/* ---------- Overview cards ---------- */
+.ov{display:grid;gap:10px}
+.ovcard{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.ovcard .date{display:grid;justify-items:center;border-right:1px solid var(--line);padding-right:10px}
+.ovcard .date b{font:700 22px/1 var(--f-display);color:var(--c)}
+.ovcard .date span{font:500 11px/1.4 var(--f-mono);color:var(--muted)}
+.ovcard .ttl{font-weight:600}
+.ovcard .ln{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
+
+/* ---------- Tickets ---------- */
+.sec-t{font:700 13px/1 var(--f-display);color:var(--muted);letter-spacing:.06em;margin:18px 0 10px}
+.sec-t:first-child{margin-top:0}
+.ticket{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.ticket .main{padding:12px 14px 12px 18px;display:grid;gap:4px;border-left:5px solid var(--c)}
+.tk-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.tk-type{font:600 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--c)}
+.tk-date{font:500 12px/1 var(--f-mono);color:var(--muted);white-space:nowrap}
+.tk-title{font-weight:600;font-size:16px;line-height:1.35}
+.route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:4px 0}
+.route .code{font:700 22px/1 var(--f-display)}
+.route .tm{font:500 12px/1.3 var(--f-mono);color:var(--muted)}
+.route .line{height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 10px);position:relative}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;font-size:13px;margin-top:2px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;overflow-wrap:anywhere}
+.stub{position:relative;border-top:2px dashed var(--line);padding:10px 14px 12px 18px;display:grid;gap:8px}
+.stub::before,.stub::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--paper);border:1px solid var(--line)}
+.stub::before{left:-11px}.stub::after{right:-11px}
+.files{display:grid;gap:6px}
+.file{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:10px;padding:6px 8px 6px 10px;font-size:13px}
+.file .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;background:none;text-align:left;padding:2px 0;font-weight:500}
+.file .x{border:0;background:none;color:var(--muted);font-size:12px;padding:4px 6px;border-radius:6px}
+.file .x.confirm{background:var(--prg);color:#fff}
+.empty{font-size:12.5px;color:var(--muted)}
+.upl{position:relative;overflow:hidden}
+.upl input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.tiny{font-size:12px;color:var(--muted);margin:4px 0 0}
+
+/* ---------- Info ---------- */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.fact .k{font-size:11.5px;color:var(--muted)}
+.fact .v{font-weight:600;font-size:14.5px;line-height:1.35}
+.country{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.country h3{margin:0 0 6px;font:700 17px/1.2 var(--f-display);display:flex;align-items:center;gap:8px}
+.country h3 i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.country .cur{font:500 12px var(--f-mono);color:var(--muted);margin-left:auto}
+.country ul{margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:4px}
+.check{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.check label{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--ink);flex:none}
+.check input:checked+span{text-decoration:line-through;color:var(--muted)}
+.copy{border:0;background:var(--soft);border-radius:6px;font-size:11.5px;padding:2px 7px;margin-left:6px;color:var(--muted)}
+
+/* ---------- Viewer ---------- */
+.viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
+.viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
+.viewer .vbar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.viewer .vbar button{background:#fff;color:#111;border:0;border-radius:10px;padding:7px 12px;font-weight:600}
+.viewer .vbody{flex:1;overflow:auto;padding:0 10px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;justify-items:center;align-content:start}
+.viewer canvas,.viewer img{max-width:100%!important;height:auto;background:#fff;border-radius:6px}
+.viewer .msg{color:#ddd;padding:20px;text-align:center}
+
+/* ---------- Desktop ---------- */
+@media (min-width:900px){
+  #map{left:440px}
+  .top{left:440px;padding:14px 16px 0}
+  .map-note{left:456px;right:16px}
+  .sheet{top:0;right:auto;width:440px;height:100%;border-radius:0;transform:none!important;box-shadow:none;border-right:1px solid var(--line)}
+  .grab{cursor:default;padding-top:16px}.handle{display:none}
+  .days{margin:0;padding-inline:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <div id="map" aria-label="여행 지도"></div>
+  <div class="map-note" id="mapNote" hidden>이 미리보기 화면에서는 배경 지도가 표시되지 않아요. 깃발·경로·구글맵 연결은 그대로 동작하고, 배포한 주소에서는 지도 배경까지 정상으로 나옵니다.</div>
+
+  <header class="top">
+    <div class="brand">
+      <div>
+        <h1>Praha · Wien · Budapest</h1>
+        <div class="sub">10.2 – 10.10 · 8박 9일 · 2인</div>
+      </div>
+      <span class="dday" id="dday"></span>
+    </div>
+    <nav class="days" id="days" aria-label="날짜 선택"></nav>
+  </header>
+
+  <section class="sheet" id="sheet" aria-label="여행 정보">
+    <div class="grab" id="grab">
+      <div class="handle"></div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-plan" aria-selected="true" data-tab="plan">일정</button>
+        <button class="tab" role="tab" id="tab-book" aria-selected="false" data-tab="book">예약 · 바우처</button>
+        <button class="tab" role="tab" id="tab-info" aria-selected="false" data-tab="info">여행 정보</button>
+      </div>
+    </div>
+    <div class="scroll" id="scroll"></div>
+  </section>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <div class="vbar"><span id="vname"></span><button id="vclose">닫기</button></div>
+  <div class="vbody" id="vbody"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ================= DATA ================= */
+const CITY = {
+  prg:{name:"프라하", en:"Prague", color:"--prg"},
+  vie:{name:"비엔나", en:"Vienna", color:"--vie"},
+  aus:{name:"오스트리아", en:"Austria", color:"--vie"},
+  czk:{name:"체코", en:"Czechia", color:"--prg"},
+  bud:{name:"부다페스트", en:"Budapest", color:"--bud"}
+};
+const HOTELS = {
+  prg:{n:"Grandium Hotel Prague", q:"Grandium Hotel Prague", ll:[50.0822,14.4308]},
+  vie:{n:"Novotel Wien Hauptbahnhof", q:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779]},
+  bud:{n:"Hilton Budapest", q:"Hilton Budapest Hess András tér", ll:[47.5025,19.0343]}
+};
+const MRT_ART = "https://experiences.myrealtrip.com/products/3527939";
+const MRT_BEL = "https://experiences.myrealtrip.com/products/3527938";
+
+// k: kind, s: stars, a: approximate location, r:false → excluded from day route
+const DAYS = [
+ {date:"2026-10-02", wd:"금", city:"prg", title:"프라하 도착", mode:"transit", stops:[
+  {t:"17:05", k:"이동", n:"바츨라프 하벨 공항 도착", o:"Václav Havel Airport Prague", ll:[50.1008,14.2600], note:"인천 11:05 출발 → 프라하 17:05 도착", r:false},
+  {t:"도착 후", k:"숙소", n:"Grandium Hotel 체크인", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], note:"체크인 15:00부터 · Politických vězňů 12/913"},
+  {t:"저녁", k:"관광", n:"구시가 광장 산책", o:"Old Town Square Prague", ll:[50.0875,14.4213]},
+  {t:"저녁", k:"간식", n:"Tradlo", o:"Tradlo Prague", ll:[50.0868,14.4203], s:2, note:"굴뚝빵(뜨르들로)", a:true},
+  {t:"야경", k:"관광", n:"카를교 건너며 야경", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
+  {t:"저녁식사", k:"식당", n:"Café Savoy", o:"Café Savoy Prague", ll:[50.0806,14.4072], note:"카를교 건너 말라스트라나 쪽"}
+ ]},
+ {date:"2026-10-03", wd:"토", city:"prg", title:"프라하 성곽지구", mode:"walking", stops:[
+  {t:"오전", k:"관광", n:"카를교", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
+  {t:"오전", k:"관광", n:"프라하성", o:"Prague Castle", ll:[50.0911,14.4016], s:1},
+  {t:"", k:"카페", n:"Lobkowicz Palace Café", o:"Lobkowicz Palace Café Prague", ll:[50.0918,14.4061], s:2, note:"뷰맛집"},
+  {t:"", k:"관광", n:"프라하성곽", o:"Garden on the Ramparts Prague Castle", ll:[50.0903,14.4022], s:2},
+  {t:"점심", k:"식당", n:"Kuchyň", o:"Kuchyň Prague Hradčanské náměstí", ll:[50.0899,14.3983], s:1, note:"슈니첼 + 뷰"},
+  {t:"오후", k:"관광", n:"발트슈타인 궁전 정원", o:"Wallenstein Garden Prague", ll:[50.0896,14.4068]},
+  {t:"오후", k:"맥주", n:"스트라호프 수도원 양조장", o:"Klášterní pivovar Strahov", ll:[50.0862,14.3913]},
+  {t:"오후", k:"관광", n:"스트라호프 수도원 도서관", o:"Strahov Library Prague", ll:[50.0860,14.3897]},
+  {t:"저녁", k:"식당", n:"Pork's", o:"Pork's Prague Mostecká", ll:[50.0867,14.4061], s:3, note:"꼴레뇨"},
+  {t:"야경", k:"관광", n:"프라하성 야경", o:"Smetanovo nábřeží Prague", ll:[50.0856,14.4139], note:"카를교·강변에서 성 방향으로", a:true}
+ ]},
+ {date:"2026-10-04", wd:"일", city:"prg", title:"프라하 구시가", mode:"walking", stops:[
+  {t:"오전", k:"시장", n:"하벨시장", o:"Havelské tržiště Prague", ll:[50.0851,14.4217]},
+  {t:"", k:"관광", n:"천문시계탑", o:"Prague Astronomical Clock", ll:[50.0870,14.4207], note:"정시마다 인형 행진"},
+  {t:"", k:"관광", n:"화약탑 (전경)", o:"Powder Tower Prague", ll:[50.0873,14.4276], s:3},
+  {t:"저녁", k:"식당", n:"Pilsnerka Národní", o:"Pilsnerka Národní Prague", ll:[50.0819,14.4180], s:3, note:"타르타르 + 굴라쉬", a:true},
+  {t:"밤", k:"산책", n:"야경 산책", note:"프라하 마지막 밤"}
+ ]},
+ {date:"2026-10-05", wd:"월", city:"aus", title:"프라하 → 비엔나 종일 투어", mode:"driving", tip:"hallstatt", stops:[
+  {t:"11:00", k:"숙소", n:"체크아웃 · 투어 픽업", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], note:"짐 챙겨서 픽업 장소로"},
+  {t:"", k:"투어", n:"체스키크룸로프", o:"Český Krumlov", ll:[48.8110,14.3150], cc:"czk"},
+  {t:"", k:"투어", n:"고사우 호수", o:"Gosausee", ll:[47.5360,13.5040]},
+  {t:"", k:"투어", n:"할슈타트", o:"Hallstatt", ll:[47.5622,13.6493], note:"자유시간에 스카이워크 등 선택 관람. 소금광산은 리노베이션 휴장 가능성 있어 확인 필요"},
+  {t:"저녁", k:"이동", n:"비엔나 중앙역 하차", o:"Wien Hauptbahnhof", ll:[48.1852,16.3753], cc:"vie"},
+  {t:"저녁", k:"숙소", n:"Novotel Wien Hauptbahnhof 체크인", o:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779], cc:"vie", note:"Canettistraße 6 · 중앙역 바로 옆"}
+ ]},
+ {date:"2026-10-06", wd:"화", city:"vie", title:"비엔나 구시가 · 미술사 · 콘서트", mode:"walking", stops:[
+  {t:"오전", k:"휴식", n:"여유 있게 휴식", note:"전날 종일 투어라 컨디션 보고 출발"},
+  {t:"오전", k:"관광", n:"성 슈테판 대성당", o:"St. Stephen's Cathedral Vienna", ll:[48.2085,16.3731]},
+  {t:"", k:"관광", n:"그라벤 거리", o:"Graben Vienna", ll:[48.2087,16.3697]},
+  {t:"", k:"관광", n:"성 베드로 성당", o:"Peterskirche Vienna", ll:[48.2094,16.3700]},
+  {t:"", k:"관광", n:"앙커우어 인형시계", o:"Ankeruhr Vienna", ll:[48.2112,16.3740], note:"정오 12시에 인형 전체 행진"},
+  {t:"점심", k:"식당", n:"Philly Vienna", o:"Philly Vienna", ll:[48.2068,16.3645], a:true},
+  {t:"14:00", k:"투어", n:"빈 미술사 박물관 투어", o:"Kunsthistorisches Museum Wien", ll:[48.2038,16.3617], note:"고대관·보물관 포함 가이드 투어", link:MRT_ART},
+  {t:"저녁", k:"카페", n:"Café Demel", o:"Café Demel Vienna", ll:[48.2087,16.3673], s:1},
+  {t:"19:30경", k:"관광", n:"카를 성당", o:"Karlskirche Vienna", ll:[48.1982,16.3717], note:"콘서트 전 20~30분"},
+  {t:"20:00", k:"공연", n:"무지크페라인 콘서트", o:"Musikverein Wien", ll:[48.2006,16.3726], note:"약 1시간 45분"},
+  {t:"밤", k:"관광", n:"알베르티나 외관 야경", o:"Albertina Vienna", ll:[48.2045,16.3683], note:"실내 관람은 목요일에"}
+ ]},
+ {date:"2026-10-07", wd:"수", city:"vie", title:"벨베데레, 여유롭게", mode:"transit", stops:[
+  {t:"08:50", k:"투어", n:"벨베데레 궁전 투어", o:"Upper Belvedere Vienna", ll:[48.1915,16.3809], note:"성 슈테판 성당 포함 투어", link:MRT_BEL},
+  {t:"", k:"산책", n:"벨베데레 정원", o:"Belvedere Garden Vienna", ll:[48.1937,16.3789], note:"30분~1시간 여유 있게"},
+  {t:"점심", k:"식당", n:"근처에서 편하게", note:"미리 정하지 않음"},
+  {t:"오후", k:"관광", n:"호프부르크 왕궁 + 정원", o:"Hofburg Vienna", ll:[48.2066,16.3656], note:"정원만 30~45분"},
+  {t:"", k:"관광", n:"오스트리아 국립도서관", o:"Prunksaal Austrian National Library", ll:[48.2060,16.3667], s:3, note:"30~45분"},
+  {t:"", k:"카페", n:"Brasserie Palmenhaus", o:"Brasserie Palmenhaus Vienna", ll:[48.2046,16.3664]},
+  {t:"여유시", k:"관광", n:"빈 시청", o:"Wiener Rathaus", ll:[48.2108,16.3573]},
+  {t:"여유시", k:"관광", n:"오스트리아 의회", o:"Austrian Parliament Building", ll:[48.2083,16.3589]},
+  {t:"저녁", k:"카페", n:"Café Central", o:"Café Central Vienna", ll:[48.2104,16.3655], s:3, note:"3대 카페 중 최고 평점"}
+ ]},
+ {date:"2026-10-08", wd:"목", city:"vie", title:"쇤브룬 + 알베르티나", mode:"transit", stops:[
+  {t:"오전", k:"관광", n:"쇤브룬 궁전 (Class Pass)", o:"Schönbrunn Palace", ll:[48.1848,16.3122], note:"약 3~4시간 · 오디오가이드는 현장 무료"},
+  {t:"", k:"관광", n:"정원 + 글로리에테", o:"Gloriette Schönbrunn", ll:[48.1781,16.3088], s:2},
+  {t:"점심", k:"식당", n:"수라 (한식당)", o:"Sura Korean Restaurant Vienna", ll:[48.1990,16.3500], s:2, a:true},
+  {t:"14–16시", k:"관광", n:"알베르티나 미술관", o:"Albertina Vienna", ll:[48.2045,16.3683], s:1, note:"실내 컬렉션 1.5~2시간 · 목요일 18시 마감"},
+  {t:"저녁", k:"관광", n:"빈 국립오페라극장 (외관)", o:"Vienna State Opera", ll:[48.2031,16.3690], note:"10분"},
+  {t:"", k:"쇼핑", n:"케른트너 거리", o:"Kärntner Straße Vienna", ll:[48.2060,16.3708], note:"쇼핑하며 이동"},
+  {t:"저녁", k:"카페", n:"Café Sacher", o:"Café Sacher Wien", ll:[48.2039,16.3697], s:2, note:"자허토르테 · 예약 가능"}
+ ]},
+ {date:"2026-10-09", wd:"금", city:"bud", title:"부다페스트, 부다 지구", mode:"walking", tip:"sunset", stops:[
+  {t:"이른 아침", k:"숙소", n:"Novotel 체크아웃", o:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779], cc:"vie", r:false},
+  {t:"08:40", k:"기차", n:"빈 중앙역 출발", o:"Wien Hauptbahnhof", ll:[48.1852,16.3753], cc:"vie", note:"08:40 → 11:29", r:false},
+  {t:"11:29", k:"기차", n:"부다페스트 도착", o:"Budapest-Keleti", ll:[47.5000,19.0838], note:"도착역은 티켓에서 확인", a:true, r:false},
+  {t:"낮", k:"숙소", n:"힐튼 부다페스트에 짐 맡기기", o:"Hilton Budapest", ll:[47.5025,19.0343], note:"체크인 15:00 · 부다성 지구 바로 앞"},
+  {t:"오후", k:"관광", n:"부다성", o:"Buda Castle", ll:[47.4962,19.0396]},
+  {t:"", k:"관광", n:"어부의 요새", o:"Fisherman's Bastion", ll:[47.5021,19.0347]},
+  {t:"", k:"관광", n:"마차시 성당", o:"Matthias Church Budapest", ll:[47.5018,19.0340]},
+  {t:"", k:"간식", n:"Chimney Cake Shop", o:"Chimney Cake Shop Budapest Castle", ll:[47.5010,19.0329], s:1, a:true},
+  {t:"일몰", k:"피크닉", n:"다뉴브강 일몰 피크닉", o:"Batthyány tér Budapest", ll:[47.5052,19.0404], s:3, a:true},
+  {t:"야경", k:"관광", n:"국회의사당 야경", o:"Batthyány tér", ll:[47.5068,19.0389], note:"강 건너 부다 쪽에서 보는 뷰"},
+  {t:"저녁", k:"식당", n:"Lánchíd Söröző", o:"Lánchíd Söröző Budapest", ll:[47.4985,19.0405], s:2, note:"굴라쉬 + 리조또"}
+ ]},
+ {date:"2026-10-10", wd:"토", city:"bud", title:"페스트 지구 & 출국", mode:"walking", stops:[
+  {t:"아침", k:"카페", n:"New York Café", o:"New York Café Budapest", ll:[47.4985,19.0707], s:3, note:"브런치 · 대기 줄이 길 수 있음"},
+  {t:"", k:"관광", n:"성 이슈트반 대성당", o:"St. Stephen's Basilica Budapest", ll:[47.5009,19.0539]},
+  {t:"", k:"관광", n:"세체니 다리", o:"Széchenyi Chain Bridge", ll:[47.4991,19.0437]},
+  {t:"", k:"관광", n:"국회의사당 (외관)", o:"Hungarian Parliament Building", ll:[47.5071,19.0457], s:3},
+  {t:"", k:"관광", n:"다뉴브 강변의 신발들", o:"Shoes on the Danube Bank", ll:[47.5043,19.0452]},
+  {t:"점심", k:"시장", n:"그레이트 마켓 홀", o:"Great Market Hall Budapest", ll:[47.4870,19.0584], note:"토요일은 오후 일찍 닫으니 점심 전후에"},
+  {t:"점심", k:"간식", n:"Retro Lángos", o:"Retro Lángos Budapest", ll:[47.5031,19.0551], s:2, note:"랑고스", a:true},
+  {t:"", k:"카페", n:"Espresso Embassy", o:"Espresso Embassy Budapest", ll:[47.5024,19.0521], note:"라떼로 마무리"},
+  {t:"17:00", k:"이동", n:"호텔 짐 찾아 공항으로", o:"Hilton Budapest", ll:[47.5025,19.0343], note:"17:00~17:30 출발 목표", r:false},
+  {t:"20:10", k:"항공", n:"부다페스트 공항 출발", o:"Budapest Ferenc Liszt International Airport", ll:[47.4394,19.2618], note:"한국 도착 10/11(일) 13:40", r:false}
+ ]}
+];
+
+const BOOKINGS = [
+ {sec:"항공", items:[
+  {id:"fl-in", c:"prg", type:"FLIGHT · 대한항공", date:"10/2 (금)", title:"인천 → 프라하", route:["ICN","11:05","PRG","17:05"]},
+  {id:"fl-out", c:"bud", type:"FLIGHT · 대한항공", date:"10/10 (토)", title:"부다페스트 → 인천", route:["BUD","20:10","ICN","13:40 +1"]}
+ ]},
+ {sec:"숙소", items:[
+  {id:"ht-prg", c:"prg", type:"HOTEL · 3박", date:"10/2 – 10/5", title:"Grandium Hotel Prague ★5", kv:[["체크인","10/2 (금) 15:00"],["체크아웃","10/5 (월) 11:00"],["주소","Politických vězňů 12/913, Praha"]], q:"Grandium Hotel Prague", addr:"Politických vězňů 12/913, 110 00 Praha"},
+  {id:"ht-vie", c:"vie", type:"HOTEL · 4박", date:"10/5 – 10/9", title:"Novotel Wien Hauptbahnhof ★4", kv:[["체크인","10/5 (월) 15:00"],["체크아웃","10/9 (금) 12:00"],["주소","Canettistraße 6, Wien"]], q:"Novotel Wien Hauptbahnhof", addr:"Canettistraße 6, 1100 Wien"},
+  {id:"ht-bud", c:"bud", type:"HOTEL · 1박", date:"10/9 – 10/10", title:"Hilton Budapest", kv:[["객실","King Superior Room"],["체크인","10/9 (금) 15:00"],["체크아웃","10/10 (토) 11:00"],["주소","Hess András tér 1-3, Budapest"]], q:"Hilton Budapest", addr:"Hess András tér 1-3, 1014 Budapest"}
+ ]},
+ {sec:"이동 · 투어", items:[
+  {id:"tr-tour", c:"vie", type:"TOUR · 종일", date:"10/5 (월)", title:"프라하 → 비엔나 이동 투어", kv:[["경유","체스키크룸로프 · 고사우 · 할슈타트"],["하차","비엔나 중앙역"],["출발","11:00 체크아웃 후 픽업"]]},
+  {id:"tr-train", c:"bud", type:"TRAIN", date:"10/9 (금)", title:"비엔나 → 부다페스트", route:["WIEN","08:40","BUD","11:29"]}
+ ]},
+ {sec:"공연 · 입장권", items:[
+  {id:"tk-mv", c:"vie", type:"CONCERT", date:"10/6 (화) 20:00", title:"무지크페라인 오케스트라 공연", kv:[["공연 시간","약 1시간 45분"],["장소","Musikverein, Musikvereinsplatz 1"]], q:"Musikverein Wien"},
+  {id:"tk-khm", c:"vie", type:"TOUR · 마이리얼트립", date:"10/6 (화) 14:00", title:"빈 미술사 박물관 투어", kv:[["내용","고대관·보물관 포함"]], link:MRT_ART, q:"Kunsthistorisches Museum Wien"},
+  {id:"tk-bel", c:"vie", type:"TOUR · 마이리얼트립", date:"10/7 (수) 08:50", title:"벨베데레 · 구도시 투어", kv:[["내용","벨베데레 + 성 슈테판 성당 포함"]], link:MRT_BEL, q:"Upper Belvedere Vienna"},
+  {id:"tk-sch", c:"vie", type:"TICKET", date:"10/8 (목)", title:"쇤브룬 궁전 Class Pass", kv:[["소요","약 3~4시간"],["오디오가이드","현장에서 무료"]], q:"Schönbrunn Palace"}
+ ]},
+ {sec:"기타", items:[
+  {id:"etc", c:"prg", type:"ETC", date:"", title:"보험 · 여권 사본 · 기타 문서", kv:[["메모","여행자보험 증서, 여권 사본 등"]]}
+ ]}
+];
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const enc = encodeURIComponent;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gPlace = q => `https://www.google.com/maps/search/?api=1&query=${enc(q)}`;
+const gDir = (q, mode="transit") => `https://www.google.com/maps/dir/?api=1&destination=${enc(q)}&travelmode=${mode}`;
+const store = {get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const IC = {
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  nav:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>',
+  route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>',
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  fit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'
+};
+const cityOf = (d, s) => s && s.cc ? s.cc : d.city;
+const colorOf = c => cssv(CITY[c].color);
+const dateKey = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`; };
+
+/* ================= state ================= */
+const todayIdx = DAYS.findIndex(d => d.date === dateKey());
+let state = { day: todayIdx >= 0 ? todayIdx + 1 : store.get("day", 0), tab: store.get("tab","plan"), sel: null };
+if (state.day > DAYS.length) state.day = 0;
+
+/* ================= D-day ================= */
+(function(){
+  const start = new Date(2026,9,2), end = new Date(2026,9,11), now = new Date(); now.setHours(0,0,0,0);
+  const diff = Math.round((start - now)/864e5);
+  $("#dday").textContent = diff > 0 ? `D-${diff}` : now < end ? `DAY ${Math.round((now-start)/864e5)+1}` : "다녀옴";
+})();
+
+/* ================= map ================= */
+const isDark = () => { const t=document.documentElement.dataset.theme; return t ? t==="dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+let map, tiles, layer, markers = [], tileOK = 0, tileErr = 0;
+function makeTiles(){
+  const style = isDark() ? "dark_all" : "rastertiles/voyager";
+  const t = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png`, {maxZoom:19, subdomains:"abcd",
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'});
+  t.on("tileload", () => { tileOK++; $("#mapNote").hidden = true; $("#map").classList.remove("no-tiles"); });
+  t.on("tileerror", () => { tileErr++; if (tileErr >= 4 && tileOK === 0) { $("#mapNote").hidden = false; $("#map").classList.add("no-tiles"); } });
+  return t;
+}
+function initMap(){
+  if (!window.L) { $("#map").innerHTML = '<p style="padding:140px 20px;color:var(--muted)">지도를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>'; return; }
+  map = L.map("map", {zoomControl:false, attributionControl:true}).setView([48.9,16.5], 6);
+  tiles = makeTiles().addTo(map);
+  layer = L.layerGroup().addTo(map);
+  const mq = matchMedia("(prefers-color-scheme: dark)");
+  const swap = () => { map.removeLayer(tiles); tileOK=0; tileErr=0; tiles = makeTiles().addTo(map); renderChips(); render(); drawMap(true); };
+  try { mq.addEventListener("change", swap); } catch {}
+  new MutationObserver(swap).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+}
+function pinIcon(c, label, cls=""){
+  return L.divIcon({className:"", iconSize:[30,30], iconAnchor:[15,30],
+    html:`<div class="pin ${cls}" style="--c:${colorOf(c)}"><b>${label}</b></div>`});
+}
+function isDesktop(){ return matchMedia("(min-width:900px)").matches; }
+function sheetCover(){ // how much of the map (px from bottom) the sheet hides
+  if (isDesktop()) return 0;
+  const sh = $("#sheet"); return Math.max(0, sh.offsetHeight - sheetY);
+}
+function fit(latlngs, maxZoom=16){
+  if (!map || !latlngs.length) return;
+  const b = L.latLngBounds(latlngs);
+  map.flyToBounds(b, {paddingTopLeft:[40, 130], paddingBottomRight:[40, sheetCover()+30], maxZoom, duration:.8});
+}
+function focusLL(ll, z=16){
+  if (!map) return;
+  const zoom = Math.max(map.getZoom(), z);
+  const p = map.project(ll, zoom).add([0, sheetCover()/2 - 40]);
+  map.flyTo(map.unproject(p, zoom), zoom, {duration:.7});
+}
+function drawMap(keepView){
+  if (!map) return;
+  layer.clearLayers(); markers = [];
+  if (state.day === 0) {
+    // overview: hotels + every stop as small dots, route between hotels
+    const pts = [];
+    DAYS.forEach((d, di) => d.stops.forEach(s => { if (!s.ll) return;
+      const m = L.marker(s.ll, {icon:L.divIcon({className:"",iconSize:[14,14],iconAnchor:[7,7],html:`<div class="pin dot" style="--c:${colorOf(cityOf(d,s))}"></div>`})}).addTo(layer);
+      m.on("click", () => setDay(di+1)); pts.push(s.ll);
+    }));
+    Object.entries(HOTELS).forEach(([c,h]) => {
+      L.marker(h.ll, {icon:pinIcon(c,"H","hotel"), zIndexOffset:500}).addTo(layer)
+       .on("click", () => { setTab("book"); });
+    });
+    const path = [[50.1008,14.2600], HOTELS.prg.ll, [48.8110,14.3150],[47.5360,13.5040],[47.5622,13.6493], HOTELS.vie.ll, HOTELS.bud.ll, [47.4394,19.2618]];
+    L.polyline(path, {color:cssv("--ink"), weight:2, opacity:.5, dashArray:"6 8"}).addTo(layer);
+    if (!keepView) fit(pts, 7);
+    return;
+  }
+  const d = DAYS[state.day-1];
+  const withLL = d.stops.map((s,i)=>({s,i})).filter(x=>x.s.ll);
+  const line = withLL.map(x=>x.s.ll);
+  if (line.length > 1) L.polyline(line, {color:colorOf(d.city==="aus"?"vie":d.city), weight:3, opacity:.75, dashArray:"2 8", lineCap:"round"}).addTo(layer);
+  let n = 0;
+  d.stops.forEach((s,i) => {
+    if (!s.ll) return; n++;
+    const m = L.marker(s.ll, {icon:pinIcon(cityOf(d,s), n, state.sel===i?"on":""), zIndexOffset: state.sel===i?1000:0, keyboard:true, title:s.n}).addTo(layer);
+    m.on("click", () => select(i, true));
+    markers[i] = m;
+  });
+  if (!keepView) fit(line, d.city==="aus" ? 8 : 16);
+}
+function refreshPins(){
+  if (!map || state.day===0) return;
+  const d = DAYS[state.day-1]; let n=0;
+  d.stops.forEach((s,i)=>{ if(!s.ll) return; n++; const m=markers[i]; if(!m) return;
+    m.setIcon(pinIcon(cityOf(d,s), n, state.sel===i?"on":"")); m.setZIndexOffset(state.sel===i?1000:0); });
+}
+
+/* ================= sheet (mobile drag) ================= */
+let sheetY = 0;
+function snaps(){ const h=$("#sheet").offsetHeight; return {full:0, half:Math.round(h*0.46), peek:Math.max(0,h-150)}; }
+function setSheet(pos, y){
+  const sh=$("#sheet"); const s=snaps();
+  sheetY = y ?? s[pos]; sh.style.setProperty("--y", sheetY+"px"); sh.dataset.pos = pos || "";
+}
+(function(){
+  const grab=$("#grab"), sh=$("#sheet"); let startY=0, startSheet=0, dragging=false, moved=false, t0=0;
+  grab.addEventListener("pointerdown", e => { if (isDesktop()) return;
+    dragging=true; moved=false; startY=e.clientY; startSheet=sheetY; t0=performance.now(); });
+  grab.addEventListener("pointermove", e => { if(!dragging) return; const dy=e.clientY-startY;
+    if (!moved && Math.abs(dy)>6) { moved=true; sh.classList.add("dragging"); try{grab.setPointerCapture(e.pointerId)}catch{} }
+    if (!moved) return;
+    const s=snaps(); sheetY=Math.min(s.peek, Math.max(0,startSheet+dy)); sh.style.setProperty("--y", sheetY+"px"); });
+  const end = e => { if(!dragging) return; dragging=false; sh.classList.remove("dragging");
+    if(!moved){ return; }
+    const s=snaps(); const v=(e.clientY-startY)/Math.max(1,performance.now()-t0);
+    let pos; if (v>0.6) pos = sheetY < s.half ? "half" : "peek"; else if (v<-0.6) pos = sheetY > s.half ? "half" : "full";
+    else pos = Object.entries(s).sort((a,b)=>Math.abs(a[1]-sheetY)-Math.abs(b[1]-sheetY))[0][0];
+    setSheet(pos); };
+  grab.addEventListener("pointerup", end); grab.addEventListener("pointercancel", end);
+  $(".handle").addEventListener("click", ()=>{ if(isDesktop())return; setSheet(sh.dataset.pos==="peek"?"half":sh.dataset.pos==="half"?"full":"peek"); });
+  addEventListener("resize", () => setSheet(sh.dataset.pos || "half"));
+})();
+
+/* ================= render: day chips ================= */
+function renderChips(){
+  const box=$("#days");
+  const chips = [`<button class="chip" data-day="0" aria-pressed="${state.day===0}"><span class="d">ALL</span><span class="t">전체 동선</span></button>`];
+  DAYS.forEach((d,i)=>{
+    const m=d.date.slice(5).replace("-","/").replace(/^0/,"").replace("/0","/");
+    const today = i===todayIdx ? '<span class="today">오늘</span>' : '';
+    chips.push(`<button class="chip" data-day="${i+1}" aria-pressed="${state.day===i+1}" style="--c:${colorOf(d.city==="aus"?"vie":d.city)}"><span class="d">D${i+1} · ${m} ${d.wd}</span><span class="t">${esc(CITY[d.city].name)}${today}</span></button>`);
+  });
+  box.innerHTML = chips.join("");
+  box.querySelectorAll(".chip").forEach(b=>b.onclick=()=>setDay(+b.dataset.day));
+  const on = box.querySelector('[aria-pressed="true"]'); if (on) on.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
+}
+
+/* ================= render: plan ================= */
+function stopHTML(d, s, i, n){
+  const c = colorOf(cityOf(d,s));
+  const stars = s.s ? `<span class="stars" aria-label="추천 ${s.s}점">${"★".repeat(s.s)}</span>` : "";
+  const btns = [];
+  if (s.o) {
+    btns.push(`<a class="btn sm" href="${gPlace(s.o)}" target="_blank" rel="noopener">${IC.pin}구글맵</a>`);
+    btns.push(`<a class="btn sm" href="${gDir(s.o, d.mode==="driving"?"transit":d.mode)}" target="_blank" rel="noopener">${IC.nav}길찾기</a>`);
+  }
+  if (s.link) btns.push(`<a class="btn sm" href="${s.link}" target="_blank" rel="noopener">${IC.link}예약 페이지</a>`);
+  return `<li class="stop ${s.ll?'clickable':''} ${state.sel===i?'on':''}" id="stop-${i}" style="--c:${c}">
+    <span class="num ${s.ll?'':'none'}">${s.ll?n:'·'}</span>
+    <div class="body" ${s.ll?`tabindex="0" data-i="${i}"`:""}>
+      <div class="row1">${s.t?`<span class="time">${esc(s.t)}</span>`:""}<span class="kind">${esc(s.k)}</span>${stars}</div>
+      <div class="name">${esc(s.n)}</div>
+      ${s.o && s.o!==s.n ? `<div class="orig">${esc(s.o)}</div>`:""}
+      ${s.note?`<div class="note">${esc(s.note)}</div>`:""}
+      ${s.a?`<div class="approx">지도 위치는 대략적이에요. 구글맵 버튼으로 정확한 위치를 확인하세요.</div>`:""}
+      ${btns.length?`<div class="actions">${btns.join("")}</div>`:""}
+    </div></li>`;
+}
+function routeURL(d){
+  const r = d.stops.filter(s=>s.o && s.r!==false).map(s=>s.o);
+  const uniq = r.filter((x,i)=>x!==r[i-1]);
+  if (uniq.length<2) return null;
+  const o=uniq[0], de=uniq[uniq.length-1], w=uniq.slice(1,-1).slice(0,9);
+  return `https://www.google.com/maps/dir/?api=1&origin=${enc(o)}&destination=${enc(de)}${w.length?`&waypoints=${enc(w.join("|"))}`:""}&travelmode=${d.mode}`;
+}
+function tipHTML(t){
+  if (t==="hallstatt") return `<div class="alert"><strong>할슈타트 관광 시 주의사항</strong><ul>
+    <li>개인 사유지와 집 앞 〈촬영 금지〉 표시 잘 확인하기</li>
+    <li>대부분 현금 결제라 현금 필수</li><li>화장실이 유료라 동전 필수</li>
+    <li>상점이 일찍 닫으니 영업시간 미리 확인</li><li>소금광산은 리노베이션 휴장 가능성, 방문 전 확인</li></ul></div>`;
+  if (t==="sunset") return `<div class="alert"><strong>일몰 시간</strong>10월 9일 부다페스트 일몰은 오후 6시 20분 전후예요. 피크닉 자리는 6시 전에 잡아 두세요.</div>`;
+  return "";
+}
+function renderPlan(){
+  const el=$("#scroll");
+  if (state.day===0){
+    el.innerHTML = `<div class="dayhead"><span class="eyebrow" style="--c:var(--ink)">OVERVIEW</span><h2>프라하 3박 · 비엔나 4박 · 부다페스트 1박</h2>
+      <div class="meta">날짜를 누르면 그날의 동선과 깃발이 지도에 표시돼요.</div></div>
+      <div class="legend"><span style="--c:var(--prg)"><i></i>프라하</span><span style="--c:var(--vie)"><i></i>비엔나·오스트리아</span><span style="--c:var(--bud)"><i></i>부다페스트</span><span style="--c:var(--ink)"><i style="border-radius:3px"></i>숙소</span></div>
+      <div class="ov">${DAYS.map((d,i)=>{ const c=colorOf(d.city==="aus"?"vie":d.city); const [ , m, dd]=d.date.split("-");
+        return `<button class="ovcard" data-day="${i+1}" style="--c:${c}"><div class="date"><b>${+dd}</b><span>${+m}월 ${d.wd}</span></div>
+        <div style="min-width:0"><div class="ttl">D${i+1} · ${esc(d.title)}</div><div class="ln">${esc(d.stops.filter(s=>s.k!=="이동"&&s.k!=="숙소").map(s=>s.n).slice(0,5).join(" → "))}</div></div></button>`; }).join("")}</div>`;
+    el.querySelectorAll(".ovcard").forEach(b=>b.onclick=()=>setDay(+b.dataset.day));
+    return;
+  }
+  const d=DAYS[state.day-1]; const c=colorOf(d.city==="aus"?"vie":d.city);
+  const [ , m, dd]=d.date.split("-"); let n=0;
+  const rURL = routeURL(d);
+  const hotelKey = state.day<=3?"prg": state.day===4?"vie": state.day<=7?"vie":"bud";
+  const modeKo = {walking:"도보",transit:"대중교통",driving:"차량"}[d.mode];
+  el.innerHTML = `<div class="dayhead" style="--c:${c}">
+      <span class="eyebrow">DAY ${state.day} · ${+m}/${+dd} ${d.wd}${state.day-1===todayIdx?" · 오늘":""}</span>
+      <h2>${esc(d.title)}</h2>
+      <div class="meta">숙소 · ${esc(HOTELS[hotelKey].n)}</div>
+      <div class="actions">
+        ${rURL?`<a class="btn primary" href="${rURL}" target="_blank" rel="noopener">${IC.route}하루 동선 구글맵으로 (${modeKo})</a>`:""}
+        <button class="btn" id="fitBtn">${IC.fit}전체 보기</button>
+      </div></div>
+    ${tipHTML(d.tip)}
+    <ol class="tl">${d.stops.map((s,i)=>{ if(s.ll) n++; return stopHTML(d,s,i,n); }).join("")}</ol>
+    <p class="tiny">지도 위 점선은 순서를 보여주는 직선 연결이에요. 실제 길은 구글맵 버튼으로 확인하세요.</p>`;
+  $("#fitBtn").onclick = () => { state.sel=null; renderPlanSel(); drawMap(); };
+  el.querySelectorAll(".body[data-i]").forEach(b=>{
+    b.addEventListener("click", e=>{ if (e.target.closest("a,button")) return; select(+b.dataset.i, false); });
+    b.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); select(+b.dataset.i,false);} });
+  });
+}
+function renderPlanSel(){
+  document.querySelectorAll(".stop").forEach(li=>li.classList.toggle("on", li.id===`stop-${state.sel}`));
+  refreshPins();
+}
+function select(i, fromMap){
+  const d=DAYS[state.day-1]; const s=d.stops[i]; if(!s||!s.ll) return;
+  state.sel = i;
+  if (state.tab!=="plan") setTab("plan");
+  if (!isDesktop() && ($("#sheet").dataset.pos==="full" || ($("#sheet").dataset.pos==="peek" && fromMap))) setSheet("half");
+  renderPlanSel();
+  focusLL(s.ll, d.city==="aus" ? 13 : 16);
+  if (fromMap) { const li=$(`#stop-${i}`); if (li) li.scrollIntoView({block:"center",behavior:"smooth"}); }
+}
+
+/* ================= vouchers (IndexedDB, this device only) ================= */
+const DB = {
+  db:null,
+  open(){ return this.db ? Promise.resolve(this.db) : new Promise((res,rej)=>{ try{
+      const r=indexedDB.open("eurotrip-vouchers",1);
+      r.onupgradeneeded=()=>r.result.createObjectStore("files",{keyPath:"id"});
+      r.onsuccess=()=>{this.db=r.result;res(this.db)}; r.onerror=()=>rej(r.error);
+    }catch(e){rej(e)} }); },
+  async tx(mode, fn){ const db=await this.open(); return new Promise((res,rej)=>{ const t=db.transaction("files",mode); const st=t.objectStore("files"); const out=fn(st); t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); t.onerror=()=>rej(t.error); }); },
+  all(){ return this.tx("readonly", st=>st.getAll()); },
+  put(rec){ return this.tx("readwrite", st=>st.put(rec)); },
+  del(id){ return this.tx("readwrite", st=>st.delete(id)); },
+  get(id){ return this.tx("readonly", st=>st.get(id)); }
+};
+let fileCache = [], dbOK = true;
+async function loadFiles(){ try { fileCache = await DB.all() || []; } catch { dbOK=false; fileCache=[]; } }
+
+function ticketHTML(b){
+  const c = colorOf(b.c);
+  const files = fileCache.filter(f=>f.bid===b.id).sort((a,z)=>a.added-z.added);
+  const route = b.route ? `<div class="route"><div><div class="code">${b.route[0]}</div><div class="tm">${b.route[1]}</div></div><div class="line"></div><div style="text-align:right"><div class="code">${b.route[2]}</div><div class="tm">${b.route[3]}</div></div></div>` : "";
+  const kv = b.kv ? `<dl class="kv">${b.kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}${k==="주소"&&b.addr?` <button class="copy" data-copy="${esc(b.addr)}">복사</button>`:""}</dd>`).join("")}</dl>` : "";
+  const acts = [];
+  if (b.q) acts.push(`<a class="btn sm" href="${gPlace(b.q)}" target="_blank" rel="noopener">${IC.pin}구글맵</a>`);
+  if (b.link) acts.push(`<a class="btn sm" href="${b.link}" target="_blank" rel="noopener">${IC.link}예약 페이지</a>`);
+  return `<article class="ticket" style="--c:${c}">
+    <div class="main"><div class="tk-top"><span class="tk-type">${esc(b.type)}</span><span class="tk-date">${esc(b.date)}</span></div>
+      <div class="tk-title">${esc(b.title)}</div>${route}${kv}${acts.length?`<div class="actions" style="margin-top:6px">${acts.join("")}</div>`:""}</div>
+    <div class="stub"><div class="files">${files.length? files.map(f=>`<div class="file"><button class="fn" data-open="${f.id}">${esc(f.name)}</button><button class="x" data-del="${f.id}">삭제</button></div>`).join("") : `<div class="empty">아직 첨부한 바우처가 없어요.</div>`}</div>
+      ${dbOK?`<label class="btn sm upl">${IC.plus}바우처·티켓 추가 (PDF, 사진)<input type="file" accept="application/pdf,image/*" multiple data-up="${b.id}" id="up-${b.id}"></label>`:""}</div>
+  </article>`;
+}
+function renderBook(){
+  const el=$("#scroll");
+  el.innerHTML = `<p class="tiny" style="margin:0 0 14px">첨부한 파일은 <b>이 기기의 브라우저에만</b> 저장돼요. 서버로 올라가지 않아서 인터넷이 없어도 열 수 있어요. 동행자 폰에도 따로 넣어 두세요.${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
+   + BOOKINGS.map(sec=>`<div class="sec-t">${esc(sec.sec)}</div>${sec.items.map(ticketHTML).join("")}`).join("");
+  el.querySelectorAll("input[data-up]").forEach(inp=>inp.onchange=async()=>{
+    const bid=inp.dataset.up;
+    for (const f of inp.files){ try{ await DB.put({id:`${bid}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, bid, name:f.name, type:f.type, blob:f, added:Date.now()}); }catch{} }
+    await loadFiles(); renderBook();
+  });
+  el.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openFile(b.dataset.open));
+  el.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{
+    if (!b.classList.contains("confirm")) { b.classList.add("confirm"); b.textContent="정말 삭제"; setTimeout(()=>{ b.classList.remove("confirm"); b.textContent="삭제"; },3000); return; }
+    await DB.del(b.dataset.del); await loadFiles(); renderBook();
+  });
+  bindCopy(el);
+}
+function bindCopy(el){
+  el.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent="복사됨"; }
+    catch { const r=document.createRange(); r.selectNodeContents(b.parentElement); const s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent="선택됨"; }
+    setTimeout(()=>b.textContent="복사",1500);
+  });
+}
+let pdfReady=null;
+function loadPdfJs(){
+  if (pdfReady) return pdfReady;
+  const add = src => new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/";
+  pdfReady = add(base+"pdf.min.js").then(()=>add(base+"pdf.worker.min.js")).then(()=>{ pdfjsLib.GlobalWorkerOptions.workerSrc = base+"pdf.worker.min.js"; return pdfjsLib; });
+  pdfReady.catch(()=>{ pdfReady=null; });
+  return pdfReady;
+}
+let objURL=null;
+async function openFile(id){
+  const f = fileCache.find(x=>x.id===id); if(!f) return;
+  const v=$("#viewer"), body=$("#vbody"); $("#vname").textContent=f.name; v.hidden=false; body.innerHTML='<div class="msg">여는 중…</div>';
+  if (objURL) URL.revokeObjectURL(objURL);
+  objURL = URL.createObjectURL(f.blob);
+  if ((f.type||"").startsWith("image/")) { body.innerHTML=`<img src="${objURL}" alt="${esc(f.name)}">`; return; }
+  try {
+    const lib = await loadPdfJs();
+    const pdf = await lib.getDocument({data: new Uint8Array(await f.blob.arrayBuffer())}).promise;
+    body.innerHTML="";
+    const w = Math.min(body.clientWidth-20, 900);
+    for (let p=1; p<=pdf.numPages; p++){
+      const page = await pdf.getPage(p); const vp0 = page.getViewport({scale:1});
+      const scale = (w/vp0.width) * (window.devicePixelRatio||1);
+      const vp = page.getViewport({scale}); const cv=document.createElement("canvas");
+      cv.width=vp.width; cv.height=vp.height; cv.style.width=Math.round(vp.width/(window.devicePixelRatio||1))+"px";
+      body.appendChild(cv); await page.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise;
+    }
+  } catch { body.innerHTML='<div class="msg">PDF를 표시하지 못했어요. 인터넷에 연결된 상태에서 한 번 열어 두면 이후엔 오프라인에서도 열려요.</div>'; }
+}
+$("#vclose").onclick=()=>{ $("#viewer").hidden=true; $("#vbody").innerHTML=""; };
+addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#viewer").hidden) $("#vclose").click(); });
+
+/* ================= render: info ================= */
+const CHECK = ["여권 (유효기간 6개월 이상)","eSIM · 유심","트래블카드 충전","유로 소액 현금 + 동전 (할슈타트 화장실)","체코 코루나 · 헝가리 포린트 소액","멀티어댑터 · 보조배터리","무지크페라인 티켓 저장","쇤브룬 Class Pass 예매 확인","Café Sacher 예약","기차 티켓 (빈 → 부다페스트) 저장","여행자보험","바우처를 이 앱에 첨부"];
+function renderInfo(){
+  const done = store.get("check", {});
+  const el=$("#scroll");
+  el.innerHTML = `
+  <div class="sec-t">한눈에</div>
+  <div class="info-grid">
+    <div class="fact"><div class="k">시차</div><div class="v">한국보다 7시간 느림</div></div>
+    <div class="fact"><div class="k">전압 · 플러그</div><div class="v">230V · 한국 플러그 그대로</div></div>
+    <div class="fact"><div class="k">긴급 전화</div><div class="v">112 (유럽 공통)</div></div>
+    <div class="fact"><div class="k">팁</div><div class="v">식당 약 10% 또는 반올림</div></div>
+  </div>
+  <div class="alert"><strong>카드 결제할 때</strong>“원화로 결제할까요?”라고 물으면 <b>현지 통화</b>를 고르세요. 원화 결제(DCC)는 수수료가 붙어 더 비싸요.</div>
+  <div class="actions" style="margin-bottom:6px">
+    <a class="btn sm" href="https://www.google.com/search?q=${enc("유로 원 환율")}" target="_blank" rel="noopener">${IC.link}유로 환율</a>
+    <a class="btn sm" href="https://www.google.com/search?q=${enc("체코 코루나 원 환율")}" target="_blank" rel="noopener">${IC.link}코루나 환율</a>
+    <a class="btn sm" href="https://www.google.com/search?q=${enc("헝가리 포린트 원 환율")}" target="_blank" rel="noopener">${IC.link}포린트 환율</a>
+  </div>
+
+  <div class="sec-t">나라별</div>
+  <section class="country" style="--c:var(--prg)"><h3><i></i>체코 · 프라하<span class="cur">CZK 코루나</span></h3><ul>
+    <li>유로는 대부분 안 받거나 환율이 나빠요. 카드 결제가 흔해요.</li>
+    <li>'No commission' 간판 사설 환전소는 조건을 꼭 확인하고, 길거리 환전은 피하기.</li>
+    <li>트램·지하철 표는 탑승 전에 개찰(노란 기계)하거나 PID Lítačka 앱으로 구매.</li>
+    <li>카를교·구시가 광장·트램 안은 소매치기 주의.</li></ul></section>
+  <section class="country" style="--c:var(--vie)"><h3><i></i>오스트리아 · 비엔나<span class="cur">EUR 유로</span></h3><ul>
+    <li>WienMobil 앱으로 24/48/72시간권 구매 가능. 4일 머무니 72시간권 + 1회권 조합을 고려.</li>
+    <li>개찰구가 없는 대신 불시 검표가 있어요. 표 없이 타면 벌금.</li>
+    <li>카페에선 커피와 함께 물 한 잔이 나와요. 계산은 자리에서 “Zahlen, bitte”.</li>
+    <li>할슈타트는 현금과 동전 필수 (화장실 유료).</li></ul></section>
+  <section class="country" style="--c:var(--bud)"><h3><i></i>헝가리 · 부다페스트<span class="cur">HUF 포린트</span></h3><ul>
+    <li>대중교통은 BudapestGO 앱. 공항버스 100E는 일반 표와 별도 요금.</li>
+    <li>그레이트 마켓 홀은 토요일에 오후 일찍 닫아요.</li>
+    <li>New York Café는 줄이 길 수 있어 예약을 추천해요.</li>
+    <li>출국편 20:10 → 공항 도착 여유 있게, 호텔에서 17:00~17:30 출발.</li></ul></section>
+
+  <div class="sec-t">출발 전 체크리스트</div>
+  <ul class="check">${CHECK.map((c,i)=>`<li><label for="ck-${i}"><input type="checkbox" id="ck-${i}" data-ck="${i}" ${done[i]?"checked":""}><span>${esc(c)}</span></label></li>`).join("")}</ul>
+  <p class="tiny">체크 표시는 이 기기에만 저장돼요.</p>`;
+  el.querySelectorAll("[data-ck]").forEach(cb=>cb.onchange=()=>{ const d=store.get("check",{}); d[cb.dataset.ck]=cb.checked; store.set("check",d); });
+}
+
+/* ================= router ================= */
+function render(){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", t.dataset.tab===state.tab));
+  if (state.tab==="plan") renderPlan(); else if (state.tab==="book") renderBook(); else renderInfo();
+}
+function setTab(t){ state.tab=t; store.set("tab",t); $("#scroll").scrollTop=0; render(); if(!isDesktop() && $("#sheet").dataset.pos==="peek") setSheet("half"); }
+function setDay(i){ state.day=i; state.sel=null; store.set("day",i); if(state.tab!=="plan"){state.tab="plan"; store.set("tab","plan");} renderChips(); $("#scroll").scrollTop=0; render(); drawMap(); if(!isDesktop() && $("#sheet").dataset.pos==="full") setSheet("half"); }
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setTab(t.dataset.tab));
+
+(async function start(){
+  setSheet("half");
+  renderChips();
+  await loadFiles();
+  render();
+  initMap();
+  drawMap();
+  try { if ("serviceWorker" in navigator && location.protocol==="https:" && !/claude\.ai|claudeusercontent|anthropic/.test(location.hostname)) navigator.serviceWorker.register("sw.js"); } catch {}
+})();
+</script>
+
+</body></html>
