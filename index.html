@@ -571,7 +571,7 @@ const DRIVE = {
   folder: "https://drive.google.com/drive/folders/1z_i3GCgno6qpo-EnAzU71BFkQ4bmRJsd?usp=drive_link", // 바우처 전체 폴더 링크
   files: {               // 예약 카드별 파일 링크 (선택)
     "fl-in":"", "fl-out":"", "ht-prg":"", "ht-vie":"", "ht-bud":"",
-    "tr-tour":"", "tr-dre":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
+    "tr-tour":"", "tr-dre":"", "rs-figl":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
   }
 };
 const MRT_ART = "https://experiences.myrealtrip.com/products/3527939";
@@ -628,28 +628,29 @@ const DAYS = [
   {t:"저녁", k:"이동", n:"비엔나 중앙역 하차", o:"Wien Hauptbahnhof", ll:[48.1852,16.3753], cc:"vie"},
   {t:"저녁", k:"숙소", n:"Novotel Wien Hauptbahnhof 체크인", o:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779], cc:"vie", note:"Canettistraße 6 · 중앙역 바로 옆"}
  ]},
- {date:"2026-10-06", wd:"화", city:"vie", title:"비엔나 구시가 · 미술사 · 콘서트", em:"🎻", mode:"walking", stops:[
+ {date:"2026-10-06", wd:"화", city:"vie", title:"비엔나 구시가 · 미술사 · 콘서트", em:"🎻", mode:"walking", tip:"transit", stops:[
   {t:"오전", k:"휴식", n:"여유 있게 휴식", note:"전날 종일 투어라 컨디션 보고 출발"},
   {t:"오전", k:"관광", n:"성 슈테판 대성당", o:"St. Stephen's Cathedral Vienna", ll:[48.2085,16.3731]},
   {t:"", k:"관광", n:"그라벤 거리", o:"Graben Vienna", ll:[48.2087,16.3697]},
   {t:"", k:"관광", n:"성 베드로 성당", o:"Peterskirche Vienna", ll:[48.2094,16.3700]},
   {t:"", k:"관광", n:"앙커우어 인형시계", o:"Ankeruhr Vienna", ll:[48.2112,16.3740], note:"정오 12시에 인형 전체 행진"},
-  {t:"점심", k:"식당", n:"Philly Vienna", o:"Philly Vienna", ll:[48.2068,16.3645], a:true},
-  {t:"14:00", k:"투어", n:"빈 미술사 박물관 투어", o:"Kunsthistorisches Museum Wien", ll:[48.2038,16.3617], note:"고대관·보물관 포함 가이드 투어", link:MRT_ART},
+  {t:"11:00", k:"식당", n:"Figlmüller 1호점 (Wollzeile)", o:"Figlmüller Wollzeile Wien", ll:[48.2093,16.3753], note:"🔖 예약 완료 · 접시보다 큰 비엔나 원조 슈니첼"},
+  {t:"14:00", k:"투어", n:"빈 미술사 박물관 투어", o:"Kunsthistorisches Museum Wien", ll:[48.2038,16.3617], note:"고대관·보물관 포함 가이드 투어 · 대중교통권 미리 구매 (투어 참고사항)", link:MRT_ART},
   {t:"저녁", k:"카페", n:"Café Demel", o:"Café Demel Vienna", ll:[48.2087,16.3673], s:1},
   {t:"19:30경", k:"관광", n:"카를 성당", o:"Karlskirche Vienna", ll:[48.1982,16.3717], note:"콘서트 전 20~30분"},
   {t:"20:00", k:"공연", n:"무지크페라인 콘서트", o:"Musikverein Wien", ll:[48.2006,16.3726], note:"약 1시간 45분"},
   {t:"밤", k:"관광", n:"알베르티나 외관 야경", o:"Albertina Vienna", ll:[48.2045,16.3683], note:"실내 관람은 목요일에"}
  ]},
- {date:"2026-10-07", wd:"수", city:"vie", title:"벨베데레, 여유롭게", em:"🖼️", mode:"transit", stops:[
-  {t:"08:50", k:"투어", n:"벨베데레 궁전 투어", o:"Upper Belvedere Vienna", ll:[48.1915,16.3809], note:"성 슈테판 성당 포함 투어", link:MRT_BEL},
+ {date:"2026-10-07", wd:"수", city:"vie", title:"벨베데레, 여유롭게", em:"🖼️", mode:"transit", tip:"transit", stops:[
+  {t:"08:50", k:"투어", n:"벨베데레 궁전 투어", o:"Upper Belvedere Vienna", ll:[48.1915,16.3809], note:"성 슈테판 성당 포함 투어 · 대중교통권 미리 구매 (투어 참고사항)", link:MRT_BEL},
   {t:"", k:"산책", n:"벨베데레 정원", o:"Belvedere Garden Vienna", ll:[48.1937,16.3789], note:"30분~1시간 여유 있게"},
-  {t:"점심", k:"식당", n:"근처에서 편하게", note:"미리 정하지 않음"},
+  {t:"점심", k:"식당", n:"1516 Brewing Company", o:"1516 Brewing Company Wien", ll:[48.2027,16.3722], note:"폭립 맛집 · Schwarzenbergstraße 2"},
   {t:"오후", k:"관광", n:"호프부르크 왕궁 + 정원", o:"Hofburg Vienna", ll:[48.2066,16.3656], note:"정원만 30~45분"},
   {t:"", k:"관광", n:"오스트리아 국립도서관", o:"Prunksaal Austrian National Library", ll:[48.2060,16.3667], s:3, note:"30~45분"},
   {t:"", k:"카페", n:"Brasserie Palmenhaus", o:"Brasserie Palmenhaus Vienna", ll:[48.2046,16.3664]},
   {t:"여유시", k:"관광", n:"빈 시청", o:"Wiener Rathaus", ll:[48.2108,16.3573]},
   {t:"여유시", k:"관광", n:"오스트리아 의회", o:"Austrian Parliament Building", ll:[48.2083,16.3589]},
+  {t:"저녁", k:"식당", n:"Shilla 신라 (한식)", o:"Shilla Korean Restaurant Bösendorferstraße Wien", ll:[48.2003,16.3712], note:"Bösendorferstraße 3"},
   {t:"저녁", k:"카페", n:"Café Central", o:"Café Central Vienna", ll:[48.2104,16.3655], s:3, note:"3대 카페 중 최고 평점"}
  ]},
  {date:"2026-10-08", wd:"목", city:"vie", title:"쇤브룬 + 알베르티나", em:"👑", mode:"transit", stops:[
@@ -702,6 +703,9 @@ const BOOKINGS = [
   {id:"tr-tour", c:"vie", type:"TOUR · 종일", date:"10/5 (월)", title:"프라하 → 비엔나 이동 투어", kv:[["경유","체스키크룸로프 · 고사우 · 할슈타트"],["하차","비엔나 중앙역"],["출발","11:00 체크아웃 후 픽업"]]},
   {id:"tr-dre", c:"de", type:"TOUR · 당일", date:"10/4 (일)", title:"드레스덴 + 작센스위스 투어", kv:[["코스","드레스덴 구시가 · 작센스위스 국립공원"],["복귀","18:30 전후 프라하 도착"],["준비물","여권 (독일 입국)"]]},
   {id:"tr-train", c:"bud", type:"TRAIN", date:"10/9 (금)", title:"비엔나 → 부다페스트", route:["WIEN","08:40","BUD","11:29"]}
+ ]},
+ {sec:"식당 예약", items:[
+  {id:"rs-figl", c:"vie", type:"RESTAURANT · 예약", date:"10/6 (화) 11:00", title:"Figlmüller 1호점 (Wollzeile)", kv:[["메뉴","비엔나 슈니첼"],["주소","Wollzeile 5, Wien"]], q:"Figlmüller Wollzeile Wien", addr:"Wollzeile 5, 1010 Wien"}
  ]},
  {sec:"공연 · 입장권", items:[
   {id:"tk-mv", c:"vie", type:"CONCERT", date:"10/6 (화) 20:00", title:"무지크페라인 오케스트라 공연", kv:[["공연 시간","약 1시간 45분"],["장소","Musikverein, Musikvereinsplatz 1"]], q:"Musikverein Wien"},
@@ -913,6 +917,12 @@ const STORIES = [
  {id:"bastei", city:"dre", o:["Bastei Bridge"], name:"작센스위스 · 바스타이 다리", era:"1851년",
   story:["엘베강 위 약 **190m** 높이 바위 봉우리들을 잇는 사암 다리예요. 1824년 나무다리를 놓았다가 1851년 지금의 돌다리로 바꿨어요. 독일에서 가장 유명한 풍경 중 하나예요.","작센스위스의 기암괴석은 독일 낭만주의 화가들에게 영감을 줬어요. 지금은 암벽 등반의 성지이기도 해요."],
   look:["다리 위 전망대에서 내려다보는 엘베강 굽이","옛 바위 성채 노이라텐 유적"], tip:"전망대까지 계단과 바위길이 이어져요. 바람이 세고 쌀쌀하니 겉옷을 챙기세요."},
+ {id:"figlmuller", city:"vie", o:["Figlmüller Wollzeile Wien"], name:"Figlmüller 1호점", era:"1905년~",
+  story:["1905년에 문을 연 비엔나 슈니첼의 대표 맛집이에요. 고기를 얇게 두드려 펴서 튀기기 때문에 **접시보다 큰 슈니첼**(지름 약 30cm)이 나와요. 원래 비엔나 슈니첼은 송아지고기지만, 피그뮐러는 **돼지고기**로 만든 슈니첼로 유명해요.","1호점은 골목 안 좁은 통로 같은 식당이라 예약 없이는 들어가기 어려워요. 예약해 두셨으니 11시에 맞춰 가면 돼요."],
+  look:["접시 밖으로 삐져나온 슈니첼 크기"], tip:"곁들이로 비엔나식 **감자 샐러드(Erdäpfelsalat)**를 시켜보세요. 레몬을 짜서 먹는 게 정석이에요."},
+ {id:"brewing1516", city:"vie", o:["1516 Brewing Company Wien"], name:"1516 Brewing Company", era:"",
+  story:["가게 안에서 직접 맥주를 빚는 브루펍이에요. 이름의 **1516**은 독일 바이에른에서 '맥주는 물·보리·홉으로만 만든다'고 정한 **맥주 순수령**이 반포된 해예요.","두툼한 **폭립**이 대표 메뉴라, 벨베데레 투어 후 든든한 점심으로 좋아요."],
+  look:[], tip:"직접 만든 맥주 여러 종을 조금씩 맛보는 샘플러가 있는지 물어보세요."},
  {id:"krumlov", city:"ck", o:["Český Krumlov"], name:"체스키크룸로프 성과 마을", era:"13세기~",
   story:["13세기에 지어진 성은 로젠베르크 가문과 슈바르첸베르크 가문이 차례로 다스렸어요. 성 안에는 1760년대 바로크 극장이 당시 무대 장치 그대로 남아 있는데, 이렇게 온전한 바로크 극장은 세계에 몇 개 없어요.","마을 골목은 중세 모습 그대로라, 어느 방향으로 걸어도 성 탑이 보여요."],
   look:["알록달록하게 칠한 성 탑","성 입구 해자의 곰","망토 다리(Plášťový most): 성 건물을 잇는 3층 아치 다리"], tip:"성 정원 쪽 전망 포인트에서 강이 S자로 휘는 모습을 볼 수 있어요."},
@@ -1103,7 +1113,7 @@ const ICONS = {
  "Prague Castle":"🏰","Lobkowicz Palace Café Prague":"☕","Garden on the Ramparts Prague Castle":"🌳","Kuchyň Prague Hradčanské náměstí":"🍽️","Wallenstein Garden Prague":"🦚","Klášterní pivovar Strahov":"🍺","Strahov Library Prague":"📚","Pork's Prague Mostecká":"🍖","Smetanovo nábřeží Prague":"🌃",
  "Havelské tržiště Prague":"🧺","Prague Astronomical Clock":"🕰️","Powder Tower Prague":"🗼","Pilsnerka Národní Prague":"🍺",
  "Český Krumlov":"🏰","Gosausee":"🏞️","Hallstatt":"🏔️","Wien Hauptbahnhof":"🚆","Novotel Wien Hauptbahnhof":"🏨",
- "St. Stephen's Cathedral Vienna":"⛪","Graben Vienna":"🛍️","Peterskirche Vienna":"🔔","Ankeruhr Vienna":"🕰️","Philly Vienna":"🥪","Kunsthistorisches Museum Wien":"🖼️","Café Demel Vienna":"🍰","Karlskirche Vienna":"⛪","Musikverein Wien":"🎻","Albertina Vienna":"🎨",
+ "St. Stephen's Cathedral Vienna":"⛪","Graben Vienna":"🛍️","Peterskirche Vienna":"🔔","Ankeruhr Vienna":"🕰️","Philly Vienna":"🥪","Figlmüller Wollzeile Wien":"🍖","1516 Brewing Company Wien":"🍺","Shilla Korean Restaurant Bösendorferstraße Wien":"🍚","Kunsthistorisches Museum Wien":"🖼️","Café Demel Vienna":"🍰","Karlskirche Vienna":"⛪","Musikverein Wien":"🎻","Albertina Vienna":"🎨",
  "Upper Belvedere Vienna":"💋","Belvedere Garden Vienna":"🌷","Hofburg Vienna":"👑","Prunksaal Austrian National Library":"📚","Brasserie Palmenhaus Vienna":"🌴","Wiener Rathaus":"🏛️","Austrian Parliament Building":"🏛️","Café Central Vienna":"☕",
  "Schönbrunn Palace":"🏰","Gloriette Schönbrunn":"🌄","Sura Korean Restaurant Vienna":"🍚","Vienna State Opera":"🎭","Kärntner Straße Vienna":"🛍️","Café Sacher Wien":"🍫",
  "Budapest-Keleti":"🚉","Hilton Budapest":"🏨","Buda Castle":"🏰","Fisherman's Bastion":"🏯","Matthias Church Budapest":"⛪","Chimney Cake Shop Budapest Castle":"🍩","Batthyány tér Budapest":"🌅","Batthyány tér":"🌃","Lánchíd Söröző Budapest":"🍲",
@@ -1318,6 +1328,7 @@ function tipHTML(t){
     <li>개인 사유지와 집 앞 〈촬영 금지〉 표시 잘 확인하기</li>
     <li>대부분 현금 결제라 현금 필수</li><li>화장실이 유료라 동전 필수</li>
     <li>상점이 일찍 닫으니 영업시간 미리 확인</li><li>소금광산은 리노베이션 휴장 가능성, 방문 전 확인</li></ul></div>`;
+  if (t==="transit") return `<div class="alert"><strong>🎫 대중교통권 미리 사기</strong>투어 참고사항에 따라 오늘은 대중교통권을 미리 사 두세요. WienMobil 앱에서 24/48/72시간권을 살 수 있어요.</div>`;
   if (t==="day2") return `<div class="alert"><strong>💡 Day 2 핵심 동선</strong>카를교 → 프라하성+전망대 → Lobkowicz → 스트라호프 → Kuchyň → 발트슈타인 → 말라스트라나 → Pork's → 카를교 → 구시가<br><span style="font-size:12.5px">프라하성 통합권으로 대성당·구왕궁·성 이르지·황금소로를 보고, 남쪽 탑 전망대는 티켓이 따로예요. 오늘 저녁에 구시가 명소까지 다 봐요.</span></div>`;
   if (t==="day3") return `<div class="alert"><strong>🇩🇪 오늘은 독일</strong><ul><li>여권 꼭 챙기기 (독일 입국)</li><li>독일은 유로를 써요</li><li>일요일이라 드레스덴 상점은 대부분 문을 닫아요</li><li>작센스위스는 계단과 흙길이 있어 편한 신발 필수</li><li>구시가 명소는 Day 2에 봤으니, 밤엔 프라하 야경 중심으로 여유롭게</li></ul></div>`;
   if (t==="sunset") return `<div class="alert"><strong>일몰 시간</strong>10월 9일 부다페스트 일몰은 오후 6시 20분 전후예요. 피크닉 자리는 6시 전에 잡아 두세요.</div>`;
@@ -1779,6 +1790,7 @@ function bindArtTiles(root){ root.querySelectorAll("[data-artv]").forEach(b=>b.o
 
 /* 가이드 한마디: 현장에서 더 재밌게 보는 법 (story id → 팁 목록) */
 const GUIDE_TIPS = {
+ figlmuller:["1호점(Wollzeile)은 전통적으로 **맥주를 팔지 않고 와인**을 내는 곳으로 알려져 있어요. 맥주가 마시고 싶으면 근처 2호점(Bäckerstraße)이 있어요."],
  vitustower:["올라가기 전에 대성당 정면의 **장미창**을 먼저 보고, 탑 위에서 그 지붕을 내려다보면 크기가 실감 나요."],
  kampa:["밤에는 카를교 조명과 구시가 탑들이 강물에 비쳐요. Day 2 저녁이나 Day 3 밤 산책에 꼭 들러보세요."],
  malastrana:["말라스트라나 광장에서 트램 22번이 지나가요. 프라하성까지 걸어 올라가기 힘들면 이 트램을 타고 성 위쪽에서 내려오는 방법도 있어요."],
@@ -1855,6 +1867,7 @@ const PHOTO = {
  porks:["c:Vepřové koleno","c:Pečené vepřové koleno","c:Schweinshaxe"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["c:Bibimbap","c:Korean food table"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
  vitustower:["c:St. Vitus Cathedral Great South Tower","St._Vitus_Cathedral"], malastrana:["Malá_Strana"], nicholas:["St._Nicholas_Church_(Malá_Strana)"], kampa:["Kampa_Island"],
  zwinger:["Zwinger_(Dresden)"], semper:["Semperoper"], fuerstenzug:["Fürstenzug"], frauenkirche:["Frauenkirche,_Dresden"], bruehl:["Brühl's_Terrace"], bastei:["Bastei"],
+ figlmuller:["c:Figlmüller Wollzeile Wien","c:Wiener Schnitzel Figlmüller"], brewing1516:["c:1516 Brewing Company Vienna","c:Spare ribs plate"],
  "city-dre":["s:Frauenkirche,_Dresden","Dresden"], "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["s:St._Stephen's_Cathedral,_Vienna","Vienna"], "city-bud":["Budapest"]
 };
 const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|\.svg|\.png|\.gif|\.tif|chart|graph|drawing|illustration|cuts|scheme|schema|engraving|lithograph|stamp|poster|menu card|label/i;
