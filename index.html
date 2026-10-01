@@ -482,6 +482,23 @@ body.noscroll{overflow:hidden}
 .app.listmode .grab{cursor:default;padding-top:12px}.app.listmode .handle{display:none}
 .app.listmode .grab,.app.listmode .scroll{box-sizing:border-box;width:100%;max-width:760px;margin-inline:auto}
 @media (min-width:900px){.app.listmode .top{left:0}}
+
+.rsv{display:inline-flex;align-items:center;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.rsv-done{background:#1F7A4D;color:#fff}
+.rsv-yes{background:color-mix(in srgb,#1F7A4D 16%,var(--card));color:#1F7A4D;border:1px solid #1F7A4D}
+.rsv-can{background:var(--warnbg);color:var(--warn)}
+.rsv-no{background:var(--soft);color:var(--muted);font-weight:500}
+.bcats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 14px;padding:2px 16px}
+.bcats::-webkit-scrollbar{display:none}
+.bcats button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:500}
+.bcats button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.food{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:16px;display:grid;gap:6px}
+.food-h{display:grid;gap:1px;margin:0 2px 4px}.food-h small{font-size:12px;color:var(--muted)}
+.food-r{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:9px 2px 4px}
+.food-r:first-of-type{border-top:0}
+.food-d{display:grid;font:600 12px/1.3 var(--f-mono);color:var(--t-food)}.food-d small{font-weight:500;color:var(--muted);font-size:11px}
+.food-n{display:grid;min-width:0}.food-n b{font-size:14.5px}.food-n small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ---------- Viewer ---------- */
 .viewer{position:fixed;inset:0;z-index:5000;background:color-mix(in srgb,#000 82%,transparent);display:flex;flex-direction:column}
 .viewer .vbar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;color:#fff}
@@ -571,7 +588,7 @@ const DRIVE = {
   folder: "https://drive.google.com/drive/folders/1z_i3GCgno6qpo-EnAzU71BFkQ4bmRJsd?usp=drive_link", // 바우처 전체 폴더 링크
   files: {               // 예약 카드별 파일 링크 (선택)
     "fl-in":"", "fl-out":"", "ht-prg":"", "ht-vie":"", "ht-bud":"",
-    "tr-tour":"", "tr-dre":"", "rs-figl":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
+    "tr-tour":"", "tr-dre":"", "rs-figl":"", "rs-pork":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
   }
 };
 const MRT_ART = "https://experiences.myrealtrip.com/products/3527939";
@@ -584,10 +601,11 @@ const DAYS = [
   {t:"도착 후", k:"숙소", n:"Grandium Hotel 체크인", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], note:"체크인 15:00부터 · Politických vězňů 12/913"},
   {t:"저녁", k:"관광", n:"구시가 광장 산책", o:"Old Town Square Prague", ll:[50.0875,14.4213]},
   {t:"저녁", k:"간식", n:"Tradlo", o:"Tradlo Prague", ll:[50.0868,14.4203], s:2, note:"굴뚝빵(뜨르들로)", a:true},
-  {t:"야경", k:"관광", n:"카를교 건너며 야경", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
-  {t:"저녁식사", k:"식당", n:"Café Savoy", o:"Café Savoy Prague", ll:[50.0806,14.4072], note:"카를교 건너 말라스트라나 쪽"}
+  {t:"야경", k:"관광", n:"카를교 건너 야경 보기", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
+  {t:"저녁", k:"식당", n:"Pilsnerka Národní", o:"Pilsnerka Národní Prague", ll:[50.0819,14.4180], s:3, note:"진짜 저녁 · 타르타르 + 굴라쉬 맛집", a:true}
  ]},
  {date:"2026-10-03", wd:"토", city:"prg", title:"프라하 핵심 관광", em:"🏰", mode:"walking", tip:"day2", stops:[
+  {t:"아침", k:"카페", n:"Café Savoy", o:"Café Savoy Prague", ll:[50.0806,14.4072], note:"아침 식사 · 화려한 천장의 1893년 카페"},
   {t:"아침", k:"관광", n:"카를교", o:"Charles Bridge Prague", ll:[50.0865,14.4114], note:"말라스트라나를 지나 프라하성으로 올라가요"},
   {t:"오전", k:"관광", n:"프라하성", o:"Prague Castle", ll:[50.0911,14.4016], s:5, note:"성 비투스 대성당 · 구왕궁 · 성 이르지 바실리카 · 황금소로"},
   {t:"", k:"관광", n:"성 비투스 대성당 남쪽 탑 전망대", o:"Great South Tower St. Vitus Cathedral", ll:[50.0904,14.4007], s:5, note:"계단으로 올라가는 전망대 · 별도 티켓"},
@@ -598,7 +616,7 @@ const DAYS = [
   {t:"", k:"산책", n:"말라스트라나 골목", o:"Malá Strana Prague", ll:[50.0876,14.4042]},
   {t:"", k:"관광", n:"성 니콜라스 성당", o:"St. Nicholas Church Malá Strana", ll:[50.0880,14.4034]},
   {t:"", k:"산책", n:"캄파섬 산책", o:"Kampa Island Prague", ll:[50.0842,14.4076]},
-  {t:"저녁", k:"식당", n:"Pork's", o:"Pork's Prague Mostecká", ll:[50.0867,14.4061], s:3, note:"꼴레뇨 · 예약"},
+  {t:"저녁", k:"식당", n:"Pork's", o:"Pork's Prague Mostecká", ll:[50.0867,14.4061], s:3, note:"꼴레뇨", rsv:"yes"},
   {t:"저녁", k:"산책", n:"카를교 건너 구시가 광장으로", o:"Old Town Square Prague", ll:[50.0875,14.4213]},
   {t:"밤", k:"관광", n:"천문시계", o:"Prague Astronomical Clock", ll:[50.0870,14.4207], s:3, note:"정시마다 인형 행진"},
   {t:"밤", k:"시장", n:"하벨시장", o:"Havelské tržiště Prague", ll:[50.0851,14.4217], note:"저녁엔 노점이 닫았을 수 있어요"},
@@ -634,7 +652,7 @@ const DAYS = [
   {t:"", k:"관광", n:"그라벤 거리", o:"Graben Vienna", ll:[48.2087,16.3697]},
   {t:"", k:"관광", n:"성 베드로 성당", o:"Peterskirche Vienna", ll:[48.2094,16.3700]},
   {t:"", k:"관광", n:"앙커우어 인형시계", o:"Ankeruhr Vienna", ll:[48.2112,16.3740], note:"정오 12시에 인형 전체 행진"},
-  {t:"11:00", k:"식당", n:"Figlmüller 1호점 (Wollzeile)", o:"Figlmüller Wollzeile Wien", ll:[48.2093,16.3753], note:"🔖 예약 완료 · 접시보다 큰 비엔나 원조 슈니첼"},
+  {t:"11:00", k:"식당", n:"Figlmüller 1호점 (Wollzeile)", o:"Figlmüller Wollzeile Wien", ll:[48.2093,16.3753], note:"접시보다 큰 비엔나 원조 슈니첼", rsv:"done"},
   {t:"14:00", k:"투어", n:"빈 미술사 박물관 투어", o:"Kunsthistorisches Museum Wien", ll:[48.2038,16.3617], note:"고대관·보물관 포함 가이드 투어 · 대중교통권 미리 구매 (투어 참고사항)", link:MRT_ART},
   {t:"저녁", k:"카페", n:"Café Demel", o:"Café Demel Vienna", ll:[48.2087,16.3673], s:1},
   {t:"19:30경", k:"관광", n:"카를 성당", o:"Karlskirche Vienna", ll:[48.1982,16.3717], note:"콘서트 전 20~30분"},
@@ -660,7 +678,7 @@ const DAYS = [
   {t:"14–16시", k:"관광", n:"알베르티나 미술관", o:"Albertina Vienna", ll:[48.2045,16.3683], s:1, note:"실내 컬렉션 1.5~2시간 · 목요일 18시 마감"},
   {t:"저녁", k:"관광", n:"빈 국립오페라극장 (외관)", o:"Vienna State Opera", ll:[48.2031,16.3690], note:"10분"},
   {t:"", k:"쇼핑", n:"케른트너 거리", o:"Kärntner Straße Vienna", ll:[48.2060,16.3708], note:"쇼핑하며 이동"},
-  {t:"저녁", k:"카페", n:"Café Sacher", o:"Café Sacher Wien", ll:[48.2039,16.3697], s:2, note:"자허토르테 · 예약 가능"}
+  {t:"저녁", k:"카페", n:"Café Sacher", o:"Café Sacher Wien", ll:[48.2039,16.3697], s:2, note:"자허토르테", rsv:"can"}
  ]},
  {date:"2026-10-09", wd:"금", city:"bud", title:"부다페스트, 부다 지구", em:"🌅", mode:"walking", tip:"sunset", stops:[
   {t:"이른 아침", k:"숙소", n:"Novotel 체크아웃", o:"Novotel Wien Hauptbahnhof", ll:[48.1858,16.3779], cc:"vie", r:false},
@@ -705,6 +723,7 @@ const BOOKINGS = [
   {id:"tr-train", c:"bud", type:"TRAIN", date:"10/9 (금)", title:"비엔나 → 부다페스트", route:["WIEN","08:40","BUD","11:29"]}
  ]},
  {sec:"식당 예약", items:[
+  {id:"rs-pork", c:"prg", type:"RESTAURANT · 예약", date:"10/3 (토) 저녁", title:"Pork's", kv:[["메뉴","꼴레뇨 (돼지 무릎 구이)"],["위치","카를교 말라스트라나 쪽 끝, Mostecká 거리"]], q:"Pork's Prague Mostecká"},
   {id:"rs-figl", c:"vie", type:"RESTAURANT · 예약", date:"10/6 (화) 11:00", title:"Figlmüller 1호점 (Wollzeile)", kv:[["메뉴","비엔나 슈니첼"],["주소","Wollzeile 5, Wien"]], q:"Figlmüller Wollzeile Wien", addr:"Wollzeile 5, 1010 Wien"}
  ]},
  {sec:"공연 · 입장권", items:[
@@ -1071,7 +1090,7 @@ const dateKey = () => { const n=new Date(); return `${n.getFullYear()}-${String(
 
 /* ================= state ================= */
 const todayIdx = DAYS.findIndex(d => d.date === dateKey());
-let state = { day: 0, tab: "plan", sel: null }; // 처음 열면 항상 일정의 전체 동선부터
+let state = { day: 0, tab: "plan", sel: null, bcat: "all" }; // 처음 열면 항상 일정의 전체 동선부터
 if (state.day > DAYS.length) state.day = 0;
 
 /* ================= D-day ================= */
@@ -1295,6 +1314,7 @@ const TYPES = {
 const KIND_TYPE = {"관광":"sight","투어":"sight","식당":"food","간식":"food","맥주":"food","시장":"food","카페":"cafe","공연":"show","산책":"rest","휴식":"rest","피크닉":"rest","쇼핑":"rest","숙소":"stay","이동":"move","기차":"move","항공":"move"};
 const typeOf = s => KIND_TYPE[s.k] || "sight";
 const typeColor = s => cssv(TYPES[typeOf(s)].c);
+const RSV = {done:"🔖 예약 완료", yes:"🔖 예약", can:"예약 가능"};
 function stopHTML(d, s, i, n){
   const ty = typeOf(s), T = TYPES[ty], c = cssv(T.c);
   const stars = s.s ? `<span class="stars" aria-label="추천 ${s.s}점">${"★".repeat(s.s)}</span>` : "";
@@ -1308,7 +1328,7 @@ function stopHTML(d, s, i, n){
   return `<li class="stop ty-${ty} ${s.ll?'clickable':''} ${state.sel===i?'on':''}" id="stop-${i}" style="--c:${c}">
     <span class="num ${s.ll?'':'none'}">${s.ll?n:'·'}</span>
     <div class="body" ${s.ll?`tabindex="0" data-i="${i}"`:""}>
-      <div class="row1">${s.t?`<span class="time">${esc(s.t)}</span>`:""}<span class="tchip">${T.e} ${T.ko}</span>${s.k!==T.ko&&!["관광","식당","숙소"].includes(s.k)?`<span class="kind">${esc(s.k)}</span>`:""}${stars}</div>
+      <div class="row1">${s.t?`<span class="time">${esc(s.t)}</span>`:""}<span class="tchip">${T.e} ${T.ko}</span>${s.rsv?`<span class="rsv rsv-${s.rsv}">${RSV[s.rsv]}</span>`:""}${s.k!==T.ko&&!["관광","식당","숙소"].includes(s.k)?`<span class="kind">${esc(s.k)}</span>`:""}${stars}</div>
       <div class="name">${esc(s.n)}</div>
       ${s.o && s.o!==s.n ? `<div class="orig">${esc(s.o)}</div>`:""}
       ${s.note?`<div class="note">${esc(s.note)}</div>`:""}
@@ -1338,11 +1358,12 @@ function renderPlan(){
   const el=$("#scroll");
   if (state.day===0){
     el.innerHTML = `<div class="dayhead"><span class="eyebrow" style="--c:var(--ink)">OVERVIEW</span><h2 class="ovh">🇨🇿 체코 프라하 3박<br>🇦🇹 오스트리아 비엔나 4박<br>🇭🇺 헝가리 부다페스트 1박</h2>
-      <div class="meta">날짜를 누르면 그날의 동선과 깃발이 지도에 표시돼요.</div></div>
+      <div class="meta">날짜를 누르면 그날의 동선과 깃발이 지도에 표시돼요.</div><div class="actions"><button class="btn" id="foodBtn">🍽️ 식당 예약 모아보기</button></div></div>
       <div class="legend"><span style="--c:var(--prg)"><i></i>프라하</span><span style="--c:var(--vie)"><i></i>비엔나</span><span style="--c:var(--de)"><i></i>드레스덴</span><span style="--c:var(--bud)"><i></i>부다페스트</span><span style="--c:var(--ink)"><i style="border-radius:3px"></i>숙소</span></div>
       <div class="ov">${DAYS.map((d,i)=>{ const c=colorOf(d.city==="aus"?"vie":d.city); const [ , m, dd]=d.date.split("-");
         return `<button class="ovcard" data-day="${i+1}" style="--c:${c}"><div class="date"><b>${+dd}</b><span>${+m}월 ${d.wd}</span></div>
         <div style="min-width:0"><div class="ttl">${d.em||""} Day${i+1} · ${esc(d.title)}</div><div class="ln">${esc(d.stops.filter(s=>s.k!=="이동"&&s.k!=="숙소").map(s=>s.n).slice(0,5).join(" → "))}</div></div></button>`; }).join("")}</div>`;
+    const fb=$("#foodBtn"); if (fb) fb.onclick=()=>{ state.bcat="food"; setTab("book"); };
     el.querySelectorAll(".ovcard").forEach(b=>b.onclick=()=>setDay(+b.dataset.day));
     return;
   }
@@ -1507,10 +1528,28 @@ async function gdRun(label, fn){
 }
 function renderBookKeep(){ if (state.tab!=="book") return; const y=$("#scroll").scrollTop; renderBook(); $("#scroll").scrollTop=y; }
 
+const BOOK_CATS = [["all","전체"],["food","🍽️ 식당 예약"],["fly","✈️ 항공"],["stay","🏨 숙소"],["move","🚌 이동·투어"],["ticket","🎫 공연·입장권"]];
+const BOOK_CAT_OF = {"항공":"fly","숙소":"stay","이동 · 투어":"move","식당 예약":"food","공연 · 입장권":"ticket","기타":"etc"};
+function foodHTML(){
+  const rows=[]; DAYS.forEach((d,di)=>d.stops.forEach((s,i)=>{ if(["식당","카페","간식","맥주"].includes(s.k) && s.o) rows.push({d,di,s,i}); }));
+  const order={done:0,yes:1,can:2}; const rk=s=>s.rsv in order?order[s.rsv]:3;
+  return `<div class="food">
+    <div class="food-h"><b>일정 속 식당 · 카페 ${rows.length}곳</b><small>누르면 일정에서 위치를 보여줘요</small></div>
+    ${rows.sort((a,b)=>rk(a.s)-rk(b.s)||a.di-b.di).map(({d,di,s,i})=>`<button class="food-r" data-fgo="${di+1}:${i}">
+      <span class="food-d">Day${di+1}<small>${esc(s.t||"")}</small></span>
+      <span class="food-n"><b>${esc(s.n)}</b><small>${esc(s.note||TYPES[typeOf(s)].ko)}</small></span>
+      ${s.rsv?`<span class="rsv rsv-${s.rsv}">${RSV[s.rsv]}</span>`:`<span class="rsv rsv-no">예약 없음</span>`}
+    </button>`).join("")}
+  </div>`;
+}
 function renderBook(){
   const el=$("#scroll");
   el.innerHTML = driveHTML() + `<p class="tiny" style="margin:0 0 14px"><b>이 기기</b> 표시 파일은 인터넷 없이 열리는 오프라인 사본이고, <b>드라이브</b> 표시 파일은 두 사람이 같이 보는 원본이에요. 여행 전에 드라이브 파일마다 <b>기기에 저장</b>을 눌러 두세요.${dbOK?"":" 지금 브라우저에서는 저장소를 쓸 수 없어 첨부가 꺼져 있어요."}</p>`
-   + BOOKINGS.map(sec=>`<div class="sec-t">${esc(sec.sec)}</div>${sec.items.map(ticketHTML).join("")}`).join("");
+   + `<nav class="bcats" aria-label="예약 종류">${BOOK_CATS.map(([k,t])=>`<button data-bcat="${k}" aria-pressed="${state.bcat===k}">${t}</button>`).join("")}</nav>`
+   + (state.bcat==="food" ? foodHTML() : "")
+   + BOOKINGS.filter(sec=>state.bcat==="all"||BOOK_CAT_OF[sec.sec]===state.bcat).map(sec=>`<div class="sec-t">${esc(sec.sec)}</div>${sec.items.map(ticketHTML).join("")}`).join("");
+  el.querySelectorAll("[data-bcat]").forEach(b=>b.onclick=()=>{ state.bcat=b.dataset.bcat; renderBook(); $("#scroll").scrollTop=0; });
+  el.querySelectorAll("[data-fgo]").forEach(b=>b.onclick=()=>{ const [d,i]=b.dataset.fgo.split(":").map(Number); setDay(d); setTimeout(()=>select(i,true),300); });
   const lg=$("#gdLogin"); if (lg) lg.onclick=()=>gdRun("구글 로그인 중…", async()=>{ await GD.login(); await GD.list(); });
   const lo=$("#gdLogout"); if (lo) lo.onclick=()=>{ GD.logout(); renderBookKeep(); };
   const rf=$("#gdRefresh"); if (rf) rf.onclick=()=>gdRun("목록 불러오는 중…", ()=>GD.list());
