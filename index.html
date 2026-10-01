@@ -9,7 +9,7 @@
 /* Layout: full-screen map, draggable bottom sheet on phone / fixed left panel on desktop. Booking cards are ticket stubs. */
 :root{
   --paper:#EEF1F0; --card:#FFFFFF; --ink:#16202B; --muted:#5B6670; --line:#D5DCDB; --soft:#E3E8E7;
-  --prg:#B5452B; --vie:#9C6F14; --bud:#17706B; --warn:#8A5A00; --warnbg:#FBF1DC;
+  --prg:#B5452B; --vie:#9C6F14; --bud:#17706B; --de:#3F5F86; --warn:#8A5A00; --warnbg:#FBF1DC;
   --shadow:0 10px 30px rgba(22,32,43,.16);
   --f-display:"Bricolage Grotesque","IBM Plex Sans KR",system-ui,sans-serif;
   --f-body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
@@ -17,10 +17,10 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#0F1519; --card:#182229; --ink:#E6ECEE; --muted:#94A1A9; --line:#2B3740; --soft:#202C34;
-  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
+  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --de:#8FB0D8; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#0F1519; --card:#182229; --ink:#E6ECEE; --muted:#94A1A9; --line:#2B3740; --soft:#202C34;
-  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
+  --prg:#E27C5F; --vie:#D8AA48; --bud:#4DB6AD; --de:#8FB0D8; --warn:#E8B94F; --warnbg:#2E2716; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
 
 html,body{height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -556,7 +556,8 @@ const CITY = {
   vie:{name:"비엔나", en:"Vienna", color:"--vie"},
   aus:{name:"오스트리아", en:"Austria", color:"--vie"},
   czk:{name:"체코", en:"Czechia", color:"--prg"},
-  bud:{name:"부다페스트", en:"Budapest", color:"--bud"}
+  bud:{name:"부다페스트", en:"Budapest", color:"--bud"},
+  de:{name:"드레스덴", en:"Dresden", color:"--de"}
 };
 const HOTELS = {
   prg:{n:"Grandium Hotel Prague", q:"Grandium Hotel Prague", ll:[50.0822,14.4308]},
@@ -570,7 +571,7 @@ const DRIVE = {
   folder: "https://drive.google.com/drive/folders/1z_i3GCgno6qpo-EnAzU71BFkQ4bmRJsd?usp=drive_link", // 바우처 전체 폴더 링크
   files: {               // 예약 카드별 파일 링크 (선택)
     "fl-in":"", "fl-out":"", "ht-prg":"", "ht-vie":"", "ht-bud":"",
-    "tr-tour":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
+    "tr-tour":"", "tr-dre":"", "tr-train":"", "tk-mv":"", "tk-khm":"", "tk-bel":"", "tk-sch":"", "etc":""
   }
 };
 const MRT_ART = "https://experiences.myrealtrip.com/products/3527939";
@@ -586,24 +587,38 @@ const DAYS = [
   {t:"야경", k:"관광", n:"카를교 건너며 야경", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
   {t:"저녁식사", k:"식당", n:"Café Savoy", o:"Café Savoy Prague", ll:[50.0806,14.4072], note:"카를교 건너 말라스트라나 쪽"}
  ]},
- {date:"2026-10-03", wd:"토", city:"prg", title:"프라하 성곽지구", em:"🏰", mode:"walking", stops:[
-  {t:"오전", k:"관광", n:"카를교", o:"Charles Bridge Prague", ll:[50.0865,14.4114]},
-  {t:"오전", k:"관광", n:"프라하성", o:"Prague Castle", ll:[50.0911,14.4016], s:1},
-  {t:"", k:"카페", n:"Lobkowicz Palace Café", o:"Lobkowicz Palace Café Prague", ll:[50.0918,14.4061], s:2, note:"뷰맛집"},
-  {t:"", k:"관광", n:"프라하성곽", o:"Garden on the Ramparts Prague Castle", ll:[50.0903,14.4022], s:2},
-  {t:"점심", k:"식당", n:"Kuchyň", o:"Kuchyň Prague Hradčanské náměstí", ll:[50.0899,14.3983], s:1, note:"슈니첼 + 뷰"},
-  {t:"오후", k:"관광", n:"발트슈타인 궁전 정원", o:"Wallenstein Garden Prague", ll:[50.0896,14.4068]},
-  {t:"오후", k:"맥주", n:"스트라호프 수도원 양조장", o:"Klášterní pivovar Strahov", ll:[50.0862,14.3913]},
-  {t:"오후", k:"관광", n:"스트라호프 수도원 도서관", o:"Strahov Library Prague", ll:[50.0860,14.3897]},
-  {t:"저녁", k:"식당", n:"Pork's", o:"Pork's Prague Mostecká", ll:[50.0867,14.4061], s:3, note:"꼴레뇨"},
-  {t:"야경", k:"관광", n:"프라하성 야경", o:"Smetanovo nábřeží Prague", ll:[50.0856,14.4139], note:"카를교·강변에서 성 방향으로", a:true}
+ {date:"2026-10-03", wd:"토", city:"prg", title:"프라하 핵심 관광", em:"🏰", mode:"walking", tip:"day2", stops:[
+  {t:"아침", k:"관광", n:"카를교", o:"Charles Bridge Prague", ll:[50.0865,14.4114], note:"말라스트라나를 지나 프라하성으로 올라가요"},
+  {t:"오전", k:"관광", n:"프라하성", o:"Prague Castle", ll:[50.0911,14.4016], s:5, note:"성 비투스 대성당 · 구왕궁 · 성 이르지 바실리카 · 황금소로"},
+  {t:"", k:"관광", n:"성 비투스 대성당 남쪽 탑 전망대", o:"Great South Tower St. Vitus Cathedral", ll:[50.0904,14.4007], s:5, note:"계단으로 올라가는 전망대 · 별도 티켓"},
+  {t:"", k:"카페", n:"Lobkowicz Palace Café", o:"Lobkowicz Palace Café Prague", ll:[50.0918,14.4061], s:2, note:"전망 카페"},
+  {t:"", k:"관광", n:"스트라호프 수도원 + 도서관", o:"Strahov Library Prague", ll:[50.0860,14.3897], s:4},
+  {t:"점심", k:"식당", n:"Kuchyň", o:"Kuchyň Prague Hradčanské náměstí", ll:[50.0899,14.3983], s:3, note:"슈니첼 + 프라하 전망"},
+  {t:"오후", k:"관광", n:"발트슈타인 궁전 정원", o:"Wallenstein Garden Prague", ll:[50.0896,14.4068], s:4},
+  {t:"", k:"산책", n:"말라스트라나 골목", o:"Malá Strana Prague", ll:[50.0876,14.4042]},
+  {t:"", k:"관광", n:"성 니콜라스 성당", o:"St. Nicholas Church Malá Strana", ll:[50.0880,14.4034]},
+  {t:"", k:"산책", n:"캄파섬 산책", o:"Kampa Island Prague", ll:[50.0842,14.4076]},
+  {t:"저녁", k:"식당", n:"Pork's", o:"Pork's Prague Mostecká", ll:[50.0867,14.4061], s:3, note:"꼴레뇨 · 예약"},
+  {t:"저녁", k:"산책", n:"카를교 건너 구시가 광장으로", o:"Old Town Square Prague", ll:[50.0875,14.4213]},
+  {t:"밤", k:"관광", n:"천문시계", o:"Prague Astronomical Clock", ll:[50.0870,14.4207], s:3, note:"정시마다 인형 행진"},
+  {t:"밤", k:"시장", n:"하벨시장", o:"Havelské tržiště Prague", ll:[50.0851,14.4217], note:"저녁엔 노점이 닫았을 수 있어요"},
+  {t:"밤", k:"관광", n:"화약탑 · 시민회관 외관", o:"Powder Tower Prague", ll:[50.0873,14.4276], s:3},
+  {t:"", k:"숙소", n:"호텔 복귀", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], r:false}
  ]},
- {date:"2026-10-04", wd:"일", city:"prg", title:"프라하 구시가", em:"🕰️", mode:"walking", stops:[
-  {t:"오전", k:"시장", n:"하벨시장", o:"Havelské tržiště Prague", ll:[50.0851,14.4217]},
-  {t:"", k:"관광", n:"천문시계탑", o:"Prague Astronomical Clock", ll:[50.0870,14.4207], note:"정시마다 인형 행진"},
-  {t:"", k:"관광", n:"화약탑 (전경)", o:"Powder Tower Prague", ll:[50.0873,14.4276], s:3},
-  {t:"저녁", k:"식당", n:"Pilsnerka Národní", o:"Pilsnerka Národní Prague", ll:[50.0819,14.4180], s:3, note:"타르타르 + 굴라쉬", a:true},
-  {t:"밤", k:"산책", n:"야경 산책", note:"프라하 마지막 밤"}
+ {date:"2026-10-04", wd:"일", city:"de", title:"드레스덴 + 작센스위스", em:"🇩🇪", mode:"driving", tip:"day3", stops:[
+  {t:"오전", k:"투어", n:"프라하 → 드레스덴 당일치기 투어", ll:[50.0822,14.4308], cc:"prg", note:"픽업 장소·시간은 투어 바우처에서 확인", r:false},
+  {t:"오전", k:"관광", n:"츠빙거 궁전", o:"Zwinger Dresden", ll:[51.0530,13.7337]},
+  {t:"", k:"관광", n:"젬퍼오퍼", o:"Semperoper Dresden", ll:[51.0543,13.7351]},
+  {t:"", k:"관광", n:"군주의 행렬", o:"Fürstenzug Dresden", ll:[51.0527,13.7383]},
+  {t:"", k:"관광", n:"프라우엔키르헤", o:"Frauenkirche Dresden", ll:[51.0519,13.7415]},
+  {t:"", k:"관광", n:"브륄의 테라스", o:"Brühlsche Terrasse Dresden", ll:[51.0530,13.7430]},
+  {t:"점심", k:"식당", n:"드레스덴 자유시간", note:"구시가에서 점심 · 일요일이라 상점은 대부분 휴무"},
+  {t:"오후", k:"투어", n:"작센스위스 국립공원", o:"Bastei Bridge", ll:[50.9620,14.0730], note:"바스타이 다리 등 · 투어 코스에 따라 달라요"},
+  {t:"18:30경", k:"숙소", n:"프라하 도착 · 호텔에서 휴식", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], cc:"prg"},
+  {t:"저녁", k:"식당", n:"가볍게 식사"},
+  {t:"야경", k:"관광", n:"카를교 야경", o:"Charles Bridge Prague", ll:[50.0865,14.4114], cc:"prg", s:3},
+  {t:"야경", k:"산책", n:"캄파섬", o:"Kampa Island Prague", ll:[50.0842,14.4076], cc:"prg"},
+  {t:"야경", k:"산책", n:"말라스트라나 야경 산책", o:"Malá Strana Prague", ll:[50.0876,14.4042], cc:"prg", note:"프라하 마지막 밤"}
  ]},
  {date:"2026-10-05", wd:"월", city:"aus", title:"체스키크룸로프 → 고사우 → 할슈타트 → 비엔나", em:"🚌", mode:"driving", tip:"hallstatt", stops:[
   {t:"11:00", k:"숙소", n:"체크아웃 · 투어 픽업", o:"Grandium Hotel Prague", ll:[50.0822,14.4308], note:"짐 챙겨서 픽업 장소로"},
@@ -685,6 +700,7 @@ const BOOKINGS = [
  ]},
  {sec:"이동 · 투어", items:[
   {id:"tr-tour", c:"vie", type:"TOUR · 종일", date:"10/5 (월)", title:"프라하 → 비엔나 이동 투어", kv:[["경유","체스키크룸로프 · 고사우 · 할슈타트"],["하차","비엔나 중앙역"],["출발","11:00 체크아웃 후 픽업"]]},
+  {id:"tr-dre", c:"de", type:"TOUR · 당일", date:"10/4 (일)", title:"드레스덴 + 작센스위스 투어", kv:[["코스","드레스덴 구시가 · 작센스위스 국립공원"],["복귀","18:30 전후 프라하 도착"],["준비물","여권 (독일 입국)"]]},
   {id:"tr-train", c:"bud", type:"TRAIN", date:"10/9 (금)", title:"비엔나 → 부다페스트", route:["WIEN","08:40","BUD","11:29"]}
  ]},
  {sec:"공연 · 입장권", items:[
@@ -771,9 +787,16 @@ const GUIDE = {
   {id:"prg", c:"--prg", name:"프라하", en:"Praha", days:"Day1–Day3", hook:"'백 개의 탑의 도시'. 걸어 다니는 것 자체가 관광이에요.",
    paras:[
     "프라하는 블타바강을 사이에 두고 동쪽의 구시가지·신시가지와, 서쪽의 말라스트라나(작은 지구)·흐라드차니(성 지구)로 나뉘어요. 이 둘을 잇는 게 카를교예요.",
-    "옛날 보헤미아 왕의 대관식 행렬은 화약탑에서 출발해 구시가 광장을 지나 카를교를 건너 프라하성까지 걸어갔어요. 이 길을 '**왕의 길**'이라고 불러요. 우리 일정의 Day1~Day3가 사실상 이 길을 거꾸로, 또 바로 걷는 셈이에요."
+    "옛날 보헤미아 왕의 대관식 행렬은 화약탑에서 출발해 구시가 광장을 지나 카를교를 건너 프라하성까지 걸어갔어요. 이 길을 '**왕의 길**'이라고 불러요. Day 2에는 카를교에서 프라하성까지 올라갔다가, 저녁에 카를교를 건너 구시가와 화약탑까지 이 길을 거꾸로 걸어요."
    ],
    know:["돌길이 많아서 편한 운동화가 필수예요.","구시가 광장과 카를교는 낮에는 사람이 너무 많아요. 이른 아침이나 밤에 가면 완전히 다른 풍경을 볼 수 있어요.","식당 메뉴에 '꼴레뇨(돼지 무릎)', '스비치코바(크림소스 소고기)', '굴라시'가 있으면 체코식 정식이에요."]},
+  {id:"dre", c:"--de", name:"드레스덴 · 작센스위스", en:"Dresden", days:"Day3", hook:"'엘베강의 피렌체'. 전쟁으로 무너졌다가 다시 세운 바로크 도시예요.",
+   paras:[
+    "드레스덴은 독일 동쪽 작센 지방의 중심 도시로, 프라하에서 차로 2시간 남짓 거리예요. 18세기 **아우구스트 강건왕** 시대에 츠빙거 궁전, 프라우엔키르헤 같은 바로크 건축과 미술 컬렉션이 쏟아져 나와 '**엘베강의 피렌체**'라는 별명을 얻었어요.",
+    "1945년 2월 연합군 폭격으로 구시가 대부분이 잿더미가 됐어요. 동독 시절에는 무너진 프라우엔키르헤를 일부러 폐허 그대로 두어 전쟁을 기억하는 장소로 삼았고, 독일 통일 뒤 전 세계 기부로 다시 세워 2005년에 완성했어요. 지금 보이는 구시가는 대부분 **다시 지은 모습**이에요.",
+    "오후에 가는 **작센스위스**는 엘베강이 깎아 만든 사암 바위산 지대예요. 18세기 이곳에서 활동한 스위스 출신 화가들이 '고향 스위스 같다'고 해서 이런 이름이 붙었어요. 대표 명소인 바스타이 다리는 뾰족한 바위 봉우리 사이를 잇는 돌다리예요."
+   ],
+   know:["**여권 필수.** 체코-독일 사이에 검문소는 보통 없지만 신분증 검사가 있을 수 있어요.","독일은 **유로**를 써요. 체코 코루나는 안 받아요.","**일요일**이라 상점과 마트는 대부분 문을 닫아요. 식당과 카페는 열어요.","작센스위스 산책로는 계단과 바위길이 있어서 편한 운동화가 좋아요."]},
   {id:"ck", c:"--prg", name:"체스키크룸로프", en:"Český Krumlov", days:"Day4", hook:"강이 S자로 감싸 안은 동화 같은 마을이에요.",
    paras:[
     "블타바강이 크게 휘어지는 곳에 자리 잡은 작은 마을로, 13세기부터 이어진 성이 마을을 내려다보고 있어요. 이 성은 체코에서 프라하성 다음으로 큰 성 단지예요. 중세 도시 구조가 거의 그대로 남아서 1992년 유네스코 세계유산이 되었어요.",
@@ -860,6 +883,36 @@ const STORIES = [
   story:["필스너 우르켈 맥주 전문 펍이에요. 1842년 체코 플젠에서 만든 필스너 우르켈은 **세계 최초의 황금빛 라거**로, '필스너'라는 맥주 종류의 이름이 여기서 나왔어요. 지금 전 세계 맥주의 대부분이 이 스타일을 따라 한 거예요.","양조장에서 살균하지 않은 채 탱크로 바로 받아오는 '탱크 맥주(tankové pivo)'가 특히 신선해요."],
   look:[], tip:"거품이 많은 '믈리코(mlíko)'는 거의 거품만 담아주는 체코식 따르기예요. 타르타르(tatarák)는 마늘을 문지른 튀긴 빵에 올려 먹어요."},
  /* ---------------- Day 4 ---------------- */
+ {id:"vitustower", city:"prg", o:["Great South Tower St. Vitus Cathedral"], name:"성 비투스 대성당 남쪽 탑 전망대", era:"14–16세기",
+  story:["성 비투스 대성당 옆구리에 솟은 가장 높은 탑이에요. 계단 **287개**를 걸어 올라가면 프라하성 지붕들과 블타바강, 빨간 지붕 바다가 360도로 펼쳐져요.","탑 안에는 체코에서 가장 큰 종 '**지그문트**'가 있어요. 16세기에 만든 무게 약 13톤짜리 종으로, 지금도 큰 국가 행사 때 울려요. 탑 중간의 황금빛 시계와 격자 장식은 르네상스 시대에 덧붙인 거예요."],
+  look:["올라가는 길 중간의 지그문트 종","전망대에서 내려다보는 대성당 지붕의 조각과 괴물 모양 물받이(가고일)"], tip:"계단이 좁고 가팔라요. 사람이 몰리기 전, 성에 도착하자마자 먼저 올라가는 걸 추천해요."},
+ {id:"malastrana", city:"prg", o:["Malá Strana Prague"], name:"말라스트라나", era:"1257년~",
+  story:["'**작은 지구**'라는 뜻으로, 프라하성 아래 강 서쪽에 펼쳐진 동네예요. 1257년에 도시로 만들어졌고, 바로크 시대 귀족들이 성 가까이에 앞다퉈 저택을 지었어요. 그 저택들이 지금은 각국 **대사관**으로 쓰여서 골목마다 국기가 걸려 있어요.","옛날에는 집 번지수 대신 문 위에 그림 간판을 달아 집을 구분했어요. 성으로 올라가는 **네루도바 거리**에서 '두 개의 태양', '황금 열쇠' 같은 간판을 찾아보세요."],
+  look:["네루도바 거리의 집 간판","골목 사이로 올려다보이는 프라하성"], tip:"말라스트라나 광장 근처에 카페와 빵집이 많아서 쉬어 가기 좋아요."},
+ {id:"nicholas", city:"prg", o:["St. Nicholas Church Malá Strana"], name:"성 니콜라스 성당 (말라스트라나)", era:"1704–1755년",
+  story:["초록 돔과 종탑이 말라스트라나 하늘을 채우는 성당으로, 체코 **바로크 건축의 최고 걸작**으로 꼽혀요. 딘첸호퍼 부자가 2대에 걸쳐 50년 넘게 지었어요.","**모차르트**가 1787년 프라하에 머물 때 이곳 오르간을 연주했고, 1791년 그가 세상을 떠나자 이 성당에서 수천 명이 모인 추모 미사가 열렸어요. 공산 정권 시절엔 종탑이 서방 대사관을 감시하는 비밀경찰 초소로 쓰였다고 해요."],
+  look:["천장 프레스코: 들어서면 고개가 저절로 젖혀져요","모차르트가 연주한 파이프 오르간"], tip:"종탑에 따로 올라갈 수 있어요. 카를교와 말라스트라나 지붕이 가까이 보여요."},
+ {id:"kampa", city:"prg", o:["Kampa Island Prague"], name:"캄파섬", era:"",
+  story:["블타바강과 좁은 물길 '**체르토프카**(악마의 개울)' 사이에 있는 작은 섬이에요. 카를교 바로 아래라 관광객이 적은 조용한 쉼터예요. 물길 옆 오래된 물레방아와 강가 집들 때문에 '**프라하의 베네치아**'라고도 불려요.","섬 근처에는 공산 시절 자유를 바라는 낙서가 이어진 '**존 레넌 벽**'이 있어요. 지금도 사람들이 계속 덧그려서 매번 모습이 달라요."],
+  look:["체르토프카 물레방아","캄파 미술관 앞 체코 작가 다비드 체르니의 거대한 '기어가는 아기' 조각","존 레넌 벽"], tip:"📸 캄파섬 강변에서 보는 카를교와 구시가 야경이 프라하 최고의 야경 포인트 중 하나예요."},
+ {id:"zwinger", city:"dre", o:["Zwinger Dresden"], name:"츠빙거 궁전", era:"1710–1728년",
+  story:["아우구스트 강건왕이 축제와 연회를 열려고 지은 바로크 궁전이에요. 성벽 사이 빈터를 뜻하는 '츠빙거'라는 이름처럼, 옛 요새 자리에 화려한 정원과 회랑을 둘렀어요.","안쪽 **고전 거장 미술관**에는 라파엘로의 '**시스티나 성모**'가 있어요. 그림 아래 턱을 괴고 있는 두 아기 천사는 전 세계 엽서와 머그컵에 가장 많이 쓰인 그림 조각 중 하나예요."],
+  look:["금빛 왕관을 얹은 '왕관 문(Kronentor)'","님프 목욕탕 분수","미술관의 '시스티나 성모' 아기 천사"], tip:"안뜰은 무료로 들어가요. 미술관은 시간이 되면 '시스티나 성모'만이라도 보세요."},
+ {id:"semper", city:"dre", o:["Semperoper Dresden"], name:"젬퍼오퍼", era:"1841년~",
+  story:["건축가 고트프리트 젬퍼가 지은 작센 국립오페라극장이에요. 바그너의 '방황하는 네덜란드인', '탄호이저', 슈트라우스의 '살로메', '장미의 기사'가 이 무대에서 처음 공연됐어요.","화재와 1945년 폭격으로 두 번 무너졌고, 폭격 꼭 40년 뒤인 **1985년 2월 13일**에 다시 문을 열었어요."],
+  look:["정면 위 네 마리 표범이 끄는 마차 조각"], tip:"독일 라데베르거 맥주 광고에 나오는 그 건물이라 현지인들은 '맥주 극장'이라고 농담해요."},
+ {id:"fuerstenzug", city:"dre", o:["Fürstenzug Dresden"], name:"군주의 행렬", era:"1872–1907년",
+  story:["길이 약 **102m** 벽을 따라 작센을 다스린 군주 35명이 말을 타고 행진하는 거대한 벽화예요. 원래는 긁어서 그린 벽화였는데, 비바람에 상하자 **마이센 도자기 타일 약 2만 3천 장**으로 다시 만들었어요.","1945년 폭격 때 주변이 다 불탔는데도 이 도자기 벽화는 거의 그대로 살아남았어요."],
+  look:["행렬 맨 끝, 모자를 들고 걷는 사람들: 벽화를 만든 화가와 당시 예술가들이에요."], tip:"벽이 길어서 반대편 길가에서 봐야 한 프레임에 들어와요."},
+ {id:"frauenkirche", city:"dre", o:["Frauenkirche Dresden"], name:"프라우엔키르헤 (성모 교회)", era:"1726–1743년 · 2005년 재건",
+  story:["돌로 쌓은 거대한 돔이 '**돌로 된 종**'이라 불린 개신교 교회예요. 1945년 폭격 이틀 뒤 불길을 견디지 못하고 무너졌고, 동독 시절 내내 폐허 더미로 남아 반전의 상징이 됐어요.","통일 뒤 전 세계의 기부로 1994년부터 다시 지어 2005년에 완성했어요. 꼭대기 황금 십자가는 드레스덴을 폭격한 영국 공군 조종사의 아들인 영국 금세공사가 만들었어요. **화해**의 상징이에요."],
+  look:["벽에 섞인 **검게 그을린 돌**: 폐허에서 건진 원래 돌을 제자리에 다시 끼운 거예요.","교회 앞 종교개혁가 마르틴 루터 동상"], tip:"안은 무료로 들어갈 수 있어요(예배 시간 제외). 밝은 파스텔 내부가 바깥과 전혀 달라요."},
+ {id:"bruehl", city:"dre", o:["Brühlsche Terrasse Dresden"], name:"브륄의 테라스", era:"18세기",
+  story:["엘베강을 따라 옛 성벽 위에 만든 산책로로, '**유럽의 발코니**'라고 불려요. 작센의 재상 브륄 백작이 개인 정원으로 쓰던 곳을 나중에 시민에게 열었어요."],
+  look:["강 건너 신시가지와 엘베강 유람선","계단 아래 성벽 안 옛 요새(카제마텐)"], tip:"📸 테라스에서 츠빙거·대성당·젬퍼오퍼 방향을 돌아보면 드레스덴 엽서 풍경이 나와요."},
+ {id:"bastei", city:"dre", o:["Bastei Bridge"], name:"작센스위스 · 바스타이 다리", era:"1851년",
+  story:["엘베강 위 약 **190m** 높이 바위 봉우리들을 잇는 사암 다리예요. 1824년 나무다리를 놓았다가 1851년 지금의 돌다리로 바꿨어요. 독일에서 가장 유명한 풍경 중 하나예요.","작센스위스의 기암괴석은 독일 낭만주의 화가들에게 영감을 줬어요. 지금은 암벽 등반의 성지이기도 해요."],
+  look:["다리 위 전망대에서 내려다보는 엘베강 굽이","옛 바위 성채 노이라텐 유적"], tip:"전망대까지 계단과 바위길이 이어져요. 바람이 세고 쌀쌀하니 겉옷을 챙기세요."},
  {id:"krumlov", city:"ck", o:["Český Krumlov"], name:"체스키크룸로프 성과 마을", era:"13세기~",
   story:["13세기에 지어진 성은 로젠베르크 가문과 슈바르첸베르크 가문이 차례로 다스렸어요. 성 안에는 1760년대 바로크 극장이 당시 무대 장치 그대로 남아 있는데, 이렇게 온전한 바로크 극장은 세계에 몇 개 없어요.","마을 골목은 중세 모습 그대로라, 어느 방향으로 걸어도 성 탑이 보여요."],
   look:["알록달록하게 칠한 성 탑","성 입구 해자의 곰","망토 다리(Plášťový most): 성 건물을 잇는 3층 아치 다리"], tip:"성 정원 쪽 전망 포인트에서 강이 S자로 휘는 모습을 볼 수 있어요."},
@@ -1027,6 +1080,7 @@ const CLABEL = {cz:[49.45,16.1], at:[47.05,15.3], hu:[46.75,18.6], sk:[48.72,19.
 const RIVERS = {
  danube:[[48.57,13.46],[48.46,13.83],[48.31,14.29],[48.25,14.6],[48.2,14.9],[48.23,15.33],[48.39,15.6],[48.38,15.95],[48.33,16.2],[48.25,16.38],[48.17,16.62],[48.14,16.95],[48.13,17.11],[48.0,17.4],[47.85,17.7],[47.76,17.95],[47.74,18.13],[47.79,18.5],[47.8,18.74],[47.82,18.9],[47.8,18.98],[47.75,19.07],[47.66,19.08],[47.56,19.07],[47.54,19.055],[47.525,19.05],[47.515,19.045],[47.507,19.042],[47.499,19.0435],[47.4935,19.046],[47.4885,19.051],[47.4855,19.0555],[47.478,19.063],[47.465,19.07],[47.4,19.02],[47.2,18.93],[46.9,18.93],[46.5,18.87],[46.1,18.87],[45.9,18.9],[45.5,19.0]],
  vltava:[[48.62,14.25],[48.72,14.3],[48.807,14.312],[48.8105,14.3125],[48.8125,14.3158],[48.8105,14.3195],[48.8085,14.3185],[48.811,14.322],[48.9,14.42],[48.98,14.47],[49.2,14.43],[49.4,14.3],[49.6,14.2],[49.8,14.35],[49.96,14.4],[50.02,14.4],[50.06,14.414],[50.072,14.413],[50.08,14.4125],[50.0865,14.4128],[50.09,14.4135],[50.0925,14.4165],[50.094,14.42],[50.0945,14.426],[50.0935,14.432],[50.098,14.44],[50.11,14.43],[50.13,14.4],[50.2,14.39],[50.35,14.47]],
+ elbe:[[50.03,15.2],[50.15,14.9],[50.25,14.6],[50.35,14.47],[50.45,14.3],[50.55,14.12],[50.66,14.04],[50.78,14.21],[50.86,14.22],[50.92,14.15],[50.955,14.08],[50.965,13.95],[51.0,13.86],[51.03,13.8],[51.055,13.745],[51.06,13.7],[51.1,13.6],[51.16,13.48],[51.3,13.3]],
  canal:[[48.232,16.36],[48.2225,16.366],[48.2165,16.37],[48.2125,16.378],[48.2085,16.385],[48.202,16.393],[48.195,16.405],[48.188,16.42]]
 };
 const LAKES = [
@@ -1038,6 +1092,7 @@ const RING = [[48.2155,16.3655],[48.213,16.3598],[48.2105,16.3585],[48.208,16.35
 const PEAKS = [[47.47,13.6],[47.3,12.9],[47.15,13.55],[47.12,12.2],[47.35,14.35],[47.25,15.3],[47.0,14.1],[46.95,12.9],[47.3,11.6]];
 const STICKERS = [
  {ll:[50.087,14.42], e:"🏰", t:"프라하", s:"3박", day:1, side:"r"},
+ {ll:[51.052,13.738], e:"⛪", t:"드레스덴", s:"Day3", day:3, side:"r"},
  {ll:[48.81,14.315], e:"🏘️", t:"체스키크룸로프", s:"Day4", day:4, side:"r"},
  {ll:[47.55,13.58], e:"🏔️", t:"할슈타트", s:"Day4", day:4, side:"r"},
  {ll:[48.208,16.373], e:"🎻", t:"비엔나", s:"4박", day:5, side:"r"},
@@ -1052,7 +1107,8 @@ const ICONS = {
  "Upper Belvedere Vienna":"💋","Belvedere Garden Vienna":"🌷","Hofburg Vienna":"👑","Prunksaal Austrian National Library":"📚","Brasserie Palmenhaus Vienna":"🌴","Wiener Rathaus":"🏛️","Austrian Parliament Building":"🏛️","Café Central Vienna":"☕",
  "Schönbrunn Palace":"🏰","Gloriette Schönbrunn":"🌄","Sura Korean Restaurant Vienna":"🍚","Vienna State Opera":"🎭","Kärntner Straße Vienna":"🛍️","Café Sacher Wien":"🍫",
  "Budapest-Keleti":"🚉","Hilton Budapest":"🏨","Buda Castle":"🏰","Fisherman's Bastion":"🏯","Matthias Church Budapest":"⛪","Chimney Cake Shop Budapest Castle":"🍩","Batthyány tér Budapest":"🌅","Batthyány tér":"🌃","Lánchíd Söröző Budapest":"🍲",
- "New York Café Budapest":"☕","St. Stephen's Basilica Budapest":"⛪","Széchenyi Chain Bridge":"🌉","Hungarian Parliament Building":"🏛️","Shoes on the Danube Bank":"👞","Great Market Hall Budapest":"🧺","Retro Lángos Budapest":"🫓","Espresso Embassy Budapest":"☕","Budapest Ferenc Liszt International Airport":"✈️"
+ "New York Café Budapest":"☕","St. Stephen's Basilica Budapest":"⛪","Széchenyi Chain Bridge":"🌉","Hungarian Parliament Building":"🏛️","Shoes on the Danube Bank":"👞","Great Market Hall Budapest":"🧺","Retro Lángos Budapest":"🫓","Espresso Embassy Budapest":"☕","Budapest Ferenc Liszt International Airport":"✈️",
+ "Great South Tower St. Vitus Cathedral":"🗼","Malá Strana Prague":"🏘️","St. Nicholas Church Malá Strana":"⛪","Kampa Island Prague":"🌳","Zwinger Dresden":"🏯","Semperoper Dresden":"🎭","Fürstenzug Dresden":"🐎","Frauenkirche Dresden":"⛪","Brühlsche Terrasse Dresden":"🌅","Bastei Bridge":"🌉"
 };
 const KIND_ICON = {"이동":"🚶","숙소":"🏨","관광":"📍","식당":"🍽️","카페":"☕","간식":"🍪","맥주":"🍺","투어":"🚌","공연":"🎻","시장":"🧺","산책":"🌳","쇼핑":"🛍️","피크닉":"🧺","기차":"🚆","항공":"✈️","휴식":"🛌"};
 const iconFor = s => ICONS[s.o] || KIND_ICON[s.k] || "📍";
@@ -1072,7 +1128,7 @@ function buildBase(){
   L.marker([48.2075,16.3615],{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="lbl-sm zhi-only">링슈트라세</span>`})}).addTo(g);
   PEAKS.forEach(ll=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[26,26],iconAnchor:[13,20],html:`<span class="peak">⛰️</span>`})}).addTo(g));
   Object.entries(CLABEL).forEach(([id,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="clabel ${["cz","at","hu"].includes(id)?"main":""}">${CNAME[id]}</span>`})}).addTo(g));
-  [["블타바강",[49.72,14.26]],["다뉴브강",[48.3,15.1]],["다뉴브강",[47.72,18.6]],["알프스",[47.22,12.95]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="rlabel">${t}</span>`})}).addTo(g));
+  [["엘베강",[50.72,13.75]],["블타바강",[49.72,14.26]],["다뉴브강",[48.3,15.1]],["다뉴브강",[47.72,18.6]],["알프스",[47.22,12.95]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="rlabel">${t}</span>`})}).addTo(g));
   [["블타바강",[50.075,14.4135]],["다뉴브강",[47.495,19.0452]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="rlabel zhi-only">${t}</span>`})}).addTo(g));
   return g;
 }
@@ -1125,8 +1181,9 @@ function drawMap(keepView){
   layer.clearLayers(); markers = [];
   if (state.day === 0) {
     const path = [HOTELS.prg.ll, [48.81,14.315],[47.536,13.504],[47.5622,13.6493], HOTELS.vie.ll, HOTELS.bud.ll];
+    routeLine([HOTELS.prg.ll,[51.052,13.738],[50.962,14.073],HOTELS.prg.ll], cssv("--de"));
     routeLine(path.slice(0,5), cssv("--vie")); routeLine(path.slice(4), cssv("--bud"));
-    [["Day4 🚌",[47.8,15.15]],["Day8 🚆",[47.95,17.9]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="daytag">${t}</span>`})}).addTo(layer));
+    [["Day3 🚌",[50.6,14.75]],["Day4 🚌",[47.8,15.15]],["Day8 🚆",[47.95,17.9]]].forEach(([t,ll])=>L.marker(ll,{interactive:false,icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="daytag">${t}</span>`})}).addTo(layer));
     STICKERS.forEach(st=>{
       L.marker(st.ll,{zIndexOffset:500,icon:L.divIcon({className:"",iconSize:[0,0],html:`<button class="sticker ${st.side}"><span class="e">${st.e}</span><span class="t"><b>${st.t}</b><small>${st.s}</small></span></button>`})})
        .addTo(layer).on("click",()=>setDay(st.day));
@@ -1145,7 +1202,7 @@ function drawMap(keepView){
     markers[i] = m;
   });
   declutter();
-  if (!keepView) fit(line, d.city==="aus" ? 8 : 17);
+  if (!keepView) fit(line, d.mode==="driving" ? 8 : 17);
 }
 // 가까운 아이콘끼리 겹치지 않게 살짝 밀어내기
 function declutter(){
@@ -1261,6 +1318,8 @@ function tipHTML(t){
     <li>개인 사유지와 집 앞 〈촬영 금지〉 표시 잘 확인하기</li>
     <li>대부분 현금 결제라 현금 필수</li><li>화장실이 유료라 동전 필수</li>
     <li>상점이 일찍 닫으니 영업시간 미리 확인</li><li>소금광산은 리노베이션 휴장 가능성, 방문 전 확인</li></ul></div>`;
+  if (t==="day2") return `<div class="alert"><strong>💡 Day 2 핵심 동선</strong>카를교 → 프라하성+전망대 → Lobkowicz → 스트라호프 → Kuchyň → 발트슈타인 → 말라스트라나 → Pork's → 카를교 → 구시가<br><span style="font-size:12.5px">프라하성 통합권으로 대성당·구왕궁·성 이르지·황금소로를 보고, 남쪽 탑 전망대는 티켓이 따로예요. 오늘 저녁에 구시가 명소까지 다 봐요.</span></div>`;
+  if (t==="day3") return `<div class="alert"><strong>🇩🇪 오늘은 독일</strong><ul><li>여권 꼭 챙기기 (독일 입국)</li><li>독일은 유로를 써요</li><li>일요일이라 드레스덴 상점은 대부분 문을 닫아요</li><li>작센스위스는 계단과 흙길이 있어 편한 신발 필수</li><li>구시가 명소는 Day 2에 봤으니, 밤엔 프라하 야경 중심으로 여유롭게</li></ul></div>`;
   if (t==="sunset") return `<div class="alert"><strong>일몰 시간</strong>10월 9일 부다페스트 일몰은 오후 6시 20분 전후예요. 피크닉 자리는 6시 전에 잡아 두세요.</div>`;
   return "";
 }
@@ -1269,7 +1328,7 @@ function renderPlan(){
   if (state.day===0){
     el.innerHTML = `<div class="dayhead"><span class="eyebrow" style="--c:var(--ink)">OVERVIEW</span><h2 class="ovh">🇨🇿 체코 프라하 3박<br>🇦🇹 오스트리아 비엔나 4박<br>🇭🇺 헝가리 부다페스트 1박</h2>
       <div class="meta">날짜를 누르면 그날의 동선과 깃발이 지도에 표시돼요.</div></div>
-      <div class="legend"><span style="--c:var(--prg)"><i></i>프라하</span><span style="--c:var(--vie)"><i></i>비엔나</span><span style="--c:var(--bud)"><i></i>부다페스트</span><span style="--c:var(--ink)"><i style="border-radius:3px"></i>숙소</span></div>
+      <div class="legend"><span style="--c:var(--prg)"><i></i>프라하</span><span style="--c:var(--vie)"><i></i>비엔나</span><span style="--c:var(--de)"><i></i>드레스덴</span><span style="--c:var(--bud)"><i></i>부다페스트</span><span style="--c:var(--ink)"><i style="border-radius:3px"></i>숙소</span></div>
       <div class="ov">${DAYS.map((d,i)=>{ const c=colorOf(d.city==="aus"?"vie":d.city); const [ , m, dd]=d.date.split("-");
         return `<button class="ovcard" data-day="${i+1}" style="--c:${c}"><div class="date"><b>${+dd}</b><span>${+m}월 ${d.wd}</span></div>
         <div style="min-width:0"><div class="ttl">${d.em||""} Day${i+1} · ${esc(d.title)}</div><div class="ln">${esc(d.stops.filter(s=>s.k!=="이동"&&s.k!=="숙소").map(s=>s.n).slice(0,5).join(" → "))}</div></div></button>`; }).join("")}</div>`;
@@ -1313,7 +1372,7 @@ function select(i, fromMap){
   if (state.tab!=="plan") setTab("plan");
   if (!isDesktop() && ($("#sheet").dataset.pos==="full" || ($("#sheet").dataset.pos==="peek" && fromMap))) setSheet("half");
   renderPlanSel();
-  focusLL(s.ll, d.city==="aus" ? 13 : 16);
+  focusLL(s.ll, d.mode==="driving" ? 14 : 16);
   if (fromMap) { const li=$(`#stop-${i}`); if (li) li.scrollIntoView({block:"center",behavior:"smooth"}); }
 }
 
@@ -1601,6 +1660,11 @@ const ART = [
    bio:"체코 출신 화가로, 파리에서 배우 **사라 베르나르**의 포스터로 스타가 된 **아르누보** 대표 작가예요. 말년엔 조국으로 돌아와 슬라브 민족의 역사를 그렸어요."}
  ]}
 ];
+ART.push({story:"zwinger", venue:"츠빙거 · 고전 거장 미술관", city:"de", day:3, items:[
+  {wiki:"Sistine_Madonna", ko:"시스티나 성모", en:"Sistine Madonna", artist:"라파엘로 산치오", year:"1512–13년",
+   desc:"구름 위에서 아기 예수를 안고 내려오는 성모 마리아를 그린 제단화예요. 1754년 작센 왕이 이탈리아에서 큰돈을 주고 사 왔어요. 2차 세계대전 뒤 소련으로 옮겨졌다가 1955년에 돌아왔어요.",
+   look:["맨 아래 턱을 괴고 위를 올려다보는 **두 아기 천사**","배경의 구름을 자세히 보면 수많은 **아기 천사 얼굴**이 숨어 있어요.","양옆에 걷어 올린 초록 커튼: 무대의 막이 열리는 것 같은 연출이에요."],
+   bio:"르네상스 3대 거장 중 한 명. 빈 미술사 박물관의 '초원의 성모'와 비교하면, 7년 사이 훨씬 웅장해진 라파엘로의 변화를 볼 수 있어요."}]});
 const ART_BY_STORY = Object.fromEntries(ART.map(a=>[a.story,a]));
 
 /* ================= 읽기 편하게: 강조·연도·용어 검색 ================= */
@@ -1715,6 +1779,11 @@ function bindArtTiles(root){ root.querySelectorAll("[data-artv]").forEach(b=>b.o
 
 /* 가이드 한마디: 현장에서 더 재밌게 보는 법 (story id → 팁 목록) */
 const GUIDE_TIPS = {
+ vitustower:["올라가기 전에 대성당 정면의 **장미창**을 먼저 보고, 탑 위에서 그 지붕을 내려다보면 크기가 실감 나요."],
+ kampa:["밤에는 카를교 조명과 구시가 탑들이 강물에 비쳐요. Day 2 저녁이나 Day 3 밤 산책에 꼭 들러보세요."],
+ malastrana:["말라스트라나 광장에서 트램 22번이 지나가요. 프라하성까지 걸어 올라가기 힘들면 이 트램을 타고 성 위쪽에서 내려오는 방법도 있어요."],
+ frauenkirche:["교회 지하 납골당(크립트)에는 폭격으로 녹아내린 옛 십자가가 전시돼 있어요. 새 십자가와 비교해 보세요."],
+ zwinger:["회랑 위로 올라가는 계단이 있어요. 위에서 보면 정원 전체가 대칭으로 펼쳐져요."],
  oldtown:["틴 성당의 두 탑을 자세히 보면 굵기가 달라요. 굵은 쪽을 **아담**, 가는 쪽을 **이브**라고 부르기도 해요.","성모 기둥 받침 근처 바닥에서 **프라하 자오선**을 표시한 금속선을 찾아보세요. 옛날엔 이 선에 드리운 그림자로 정오를 알았어요.","📸 구시청 탑 전망대에서 틴 성당과 광장을 내려다보는 사진이 프라하 대표 컷이에요."],
  orloj:["시계 양옆 인형 넷은 **허영**(거울), **탐욕**(돈주머니), **죽음**(해골), **쾌락**(악기)을 뜻해요. 해골이 종을 치면 나머지 인형들이 고개를 저어요. '나는 아직 아니야'라는 뜻이래요.","아래쪽 12개월 달력 그림은 체코 화가 요제프 마네스의 작품(지금 건 복제본)이에요. 달마다 농부의 일이 그려져 있어요.","📸 인형 쇼보다 쇼를 찍는 수백 대의 휴대폰이 더 장관이라는 농담이 있어요. 정각에는 광장 반대편에서 전체 풍경을 찍어보세요."],
  charles:["네포무츠키 동판 말고, 다리 난간 중간쯤 작은 **금색 십자가**가 박힌 곳이 그가 실제로 던져진 자리라고 해요. 현지 사람들은 거기에 손을 얹고 소원을 빌어요.","구시가 쪽 다리 탑은 유럽에서 가장 아름다운 고딕 탑으로 꼽혀요. 문 위 조각에서 **카를 4세**를 찾아보세요.","📸 말라스트라나 쪽 캄파 섬으로 내려가는 계단에서 다리를 옆모습으로 찍을 수 있어요."],
@@ -1754,6 +1823,7 @@ const GUIDE_TIPS = {
  nyc:["줄을 피하려면 **문 여는 시간 직후**가 가장 좋아요. 예약하면 더 편해요."]
 };
 const CITY_FUN = {
+ dre:["드레스덴의 크리스마스 마켓 '**슈트리첼마르크트**'는 1434년에 시작된, 독일에서 가장 오래된 크리스마스 마켓 중 하나예요.","드레스덴 명물 디저트는 '**아이어셰케**', 치즈케이크와 커스터드를 겹친 케이크예요.","츠빙거 미술관의 '시스티나 성모' 아기 천사 두 명은 원래 그림 맨 아래 작은 조연이었는데, 지금은 그림 전체보다 더 유명해요."],
  prg:["모차르트 오페라 '돈 조반니'는 **1787년 프라하**에서 처음 공연됐어요. 비엔나보다 프라하가 모차르트를 더 사랑했다는 말이 있어요.","프라하 지하철역 중 일부는 냉전 시절 **핵 대피소**로도 쓸 수 있게 아주 깊게 만들었어요. 에스컬레이터가 끝없이 길어요.","프라하에는 '**춤추는 빌딩**'이라는 휘어진 현대 건물도 있어요. 전설적인 춤 커플 이름을 따 '진저와 프레드'라고도 불러요."],
  ck:["성 해자의 곰들은 지금도 이름이 있고, 마을 사람들의 **마스코트** 같은 존재예요."],
  hs:["할슈타트 사람들은 소금물을 나르려고 **1595년부터 나무 관을 이어** 약 40km 떨어진 곳까지 보냈어요. 지금도 쓰이는 **세계에서 가장 오래된 파이프라인**으로 꼽혀요."],
@@ -1783,7 +1853,9 @@ const PHOTO = {
  lanchid:["c:Gulyásleves","c:Hungarian goulash soup"], nyc:["c:New York Café Budapest","New_York_Palace"], basilica:["St._Stephen's_Basilica"], chain:["Széchenyi_Chain_Bridge"],
  parliament_hu:["Hungarian_Parliament_Building"], shoes:["Shoes_on_the_Danube_Bank"], market:["Great_Market_Hall_(Budapest)","Great_Market_Hall"], langos:["c:Lángos tejföl sajt","c:Lángos"],
  porks:["c:Vepřové koleno","c:Pečené vepřové koleno","c:Schweinshaxe"], savoy:["c:Café Savoy Praha"], embassy:["c:Espresso Embassy Budapest","Latte_art"], sura:["c:Bibimbap","c:Korean food table"], palmen:["c:Palmenhaus Burggarten Wien","Burggarten"], hilton:["Buda_Castle_District","Castle_District"],
- "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["s:St._Stephen's_Cathedral,_Vienna","Vienna"], "city-bud":["Budapest"]
+ vitustower:["c:St. Vitus Cathedral Great South Tower","St._Vitus_Cathedral"], malastrana:["Malá_Strana"], nicholas:["St._Nicholas_Church_(Malá_Strana)"], kampa:["Kampa_Island"],
+ zwinger:["Zwinger_(Dresden)"], semper:["Semperoper"], fuerstenzug:["Fürstenzug"], frauenkirche:["Frauenkirche,_Dresden"], bruehl:["Brühl's_Terrace"], bastei:["Bastei"],
+ "city-dre":["s:Frauenkirche,_Dresden","Dresden"], "city-prg":["Prague"], "city-ck":["Český_Krumlov"], "city-hs":["Hallstatt"], "city-vie":["s:St._Stephen's_Cathedral,_Vienna","Vienna"], "city-bud":["Budapest"]
 };
 const PH_SKIP = /map|karte|logo|coat[_ ]of[_ ]arms|wappen|flag|locator|location|plan|diagram|signature|seal|icon|\.svg|\.png|\.gif|\.tif|chart|graph|drawing|illustration|cuts|scheme|schema|engraving|lithograph|stamp|poster|menu card|label/i;
 const PH_MEM = {};
@@ -1858,7 +1930,7 @@ function hydratePhotos(root){
   });
 }
 
-const FLAG = {cz:"🇨🇿", at:"🇦🇹", hu:"🇭🇺", prg:"🇨🇿", ck:"🇨🇿", hs:"🇦🇹", vie:"🇦🇹", bud:"🇭🇺"};
+const FLAG = {de:"🇩🇪", dre:"🇩🇪", cz:"🇨🇿", at:"🇦🇹", hu:"🇭🇺", prg:"🇨🇿", ck:"🇨🇿", hs:"🇦🇹", vie:"🇦🇹", bud:"🇭🇺"};
 const CITY_OF_STORY = id => GUIDE.cities.find(c=>c.id===id);
 const storyFor = o => o ? STORIES.find(x=>x.o.includes(o)) : null;
 // 어느 날 일정에 나오는지 (명소 → 일정으로 이동)
